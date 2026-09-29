@@ -6,7 +6,7 @@ Butterflaw is a DevOps agent that predicts whether a deployment will break produ
 
 | | |
 |---|---|
-| 🌐 **Live demo** | DEPLOYED-LINK-PLACEHOLDER |
+| 🌐 **Live demo** | https://butterflaw.onrender.com |
 | 🎥 **Demo video** | YOUTUBE-LINK-PLACEHOLDER |
 | 📝 **Article** | [I Gave My Deploy Pipeline Hindsight Memory. Outages Stopped Repeating.](https://dev.to/jaividhyarthi/i-gave-my-deploy-pipeline-hindsight-memory-outages-stopped-repeating-4956) |
 | 💼 **LinkedIn** | [Post](https://www.linkedin.com/posts/jaividhyarthivivekanand_aiagents-agentmemory-hindsight-share-7510749692083785728-SEXS/) |
