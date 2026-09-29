@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Butterflaw</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#F7F3EA;--card:#fff;--ink:#141414;--muted:#6B6560;--line:rgba(20,20,20,.12);--orange:#F35404;--green:#16A34A;--amber:#D97706;--red:#DC2626}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,sans-serif}
+a{color:inherit}.mono{font-family:"JetBrains Mono",monospace;font-size:13px}
+header{display:flex;align-items:center;gap:28px;padding:18px 40px;border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:10px;font:700 22px "Space Grotesk",sans-serif}
+nav{display:flex;gap:6px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px}
+nav button{border:0;background:none;padding:8px 16px;border-radius:999px;font:600 14px Inter;cursor:pointer;color:var(--muted)}
+nav button.active{background:var(--ink);color:#fff}
+main{max-width:1180px;margin:0 auto;padding:32px 40px 80px}
+h1{font:700 44px/1.05 "Space Grotesk",sans-serif;margin:0 0 10px;letter-spacing:-1.5px}
+h2{font:700 24px "Space Grotesk",sans-serif;margin:0 0 6px}.sub{color:var(--muted);max-width:760px;margin:0 0 24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
+.grid{display:grid;gap:16px}.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:1fr 1fr}
+.stat .v{font:700 34px "Space Grotesk";margin-top:4px}.stat .l{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.5px}
+.btn{border:0;border-radius:999px;padding:11px 20px;font:600 14px Inter;cursor:pointer}
+.btn.primary{background:var(--orange);color:#fff}.btn.dark{background:var(--ink);color:#fff}.btn.ghost{background:#fff;border:1px solid var(--line)}
+.btn:disabled{opacity:.5;cursor:wait}.btn:focus-visible,input:focus-visible,textarea:focus-visible,nav button:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+.banner{padding:12px 16px;border-radius:10px;margin-bottom:18px;background:#FFF1E8;border:1px solid #F8C3A3;color:#8A2D00;display:none}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.ok{background:var(--green)}.bad{background:var(--red)}.warn{background:var(--amber)}
+table{width:100%;border-collapse:collapse;font-size:14px}th{text-align:left;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.4px;padding:8px;border-bottom:1px solid var(--line)}
+td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid var(--line);white-space:nowrap}
+.pill.fail{background:#FDECEC;color:#A21C1C;border-color:#F5C2C2}.pill.safe{background:#E8F6EE;color:#136C35;border-color:#BFE5CD}
+.pill.high{background:#FFE9DD;color:#B83C00}.pill.medium{background:#FFF4DB;color:#8A5A00}.pill.low{background:#E8F6EE;color:#136C35}
+.mark{font-weight:700}.mark.y{color:var(--green)}.mark.n{color:var(--red)}
+.risk{position:relative;overflow:hidden}.risk:before{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;background:var(--orange);opacity:.08;transform:rotate(25deg);border-radius:30px}
+.big{font:700 52px "Space Grotesk";line-height:1}.muted{color:var(--muted)}
+label{display:block;font-weight:600;font-size:13px;margin:14px 0 6px}
+input,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;cursor:pointer;font:500 13px "JetBrains Mono"}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.mem{padding:10px 0;border-bottom:1px solid var(--line)}.mem:last-child{border:0}
+.tab{display:none}.tab.active{display:block}
+.progress{height:8px;background:#EAE3D5;border-radius:999px;overflow:hidden}.progress>div{height:100%;background:var(--orange);width:0;transition:width .4s}
+.small{font-size:13px}.spacer{height:18px}
+@media(max-width:860px){.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}header{flex-wrap:wrap;padding:14px 16px}main{padding:22px 16px}h1{font-size:32px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 16 L4 6 Q2 16 7 20 Z" fill="#F35404"/><path d="M16 16 L28 6 Q30 16 25 20 Z" fill="#141414"/><path d="M16 16 L8 26 Q14 28 16 20 Z" fill="#141414"/><path d="M16 16 L24 26 Q18 28 16 20 Z" fill="#F35404"/></svg>Butterflaw</div>
+  <nav aria-label="Main">
+    <button class="active" data-tab="learn">Learning curve</button>
+    <button data-tab="preflight">Preflight</button>
+    <button data-tab="memory">Memory</button>
+  </nav>
+  <span class="muted small" id="bank"></span>
+</header>
+<main>
+  <div class="banner" id="banner" role="alert"></div>
+
+  <!-- LEARNING CURVE -->
+  <section class="tab active" id="tab-learn">
+    <h1>Every outage starts with a wing flap.</h1>
+    <p class="sub">Butterflaw predicts whether a deployment will break production. Two agents, same LLM, same prompt. One has <b>Hindsight memory</b> of the team's past deployments and its own mistakes; the other has none. Watch 24 real-looking deployments replay in order: each agent predicts <i>before</i> seeing the outcome, then the outcome is retained into memory.</p>
+    <div class="row">
+      <button class="btn primary" id="startReplay">Run replay with fresh memory</button>
+      <span class="muted small" id="replayStatus"></span>
+    </div>
+    <div class="spacer"></div>
+    <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+    <div class="spacer"></div>
+    <div class="grid g4">
+      <div class="card stat"><div class="l">With memory · overall</div><div class="v" id="sMem">–</div></div>
+      <div class="card stat"><div class="l">Without memory · overall</div><div class="v" id="sBase">–</div></div>
+      <div class="card stat"><div class="l">With memory · 2nd half</div><div class="v" id="sMem2">–</div></div>
+      <div class="card stat"><div class="l">Without memory · 2nd half</div><div class="v" id="sBase2">–</div></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="card"><h2>Cumulative prediction accuracy</h2><p class="muted small" id="chartSummary">Run the replay to see the curve.</p><canvas id="chart" height="110" aria-label="Accuracy chart"></canvas></div>
+    <div class="spacer"></div>
+    <div class="card"><h2>Deployment by deployment</h2>
+      <div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Deployment</th><th>Actual</th><th>With memory</th><th>Without memory</th></tr></thead><tbody id="rows"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- PREFLIGHT -->
+  <section class="tab" id="tab-preflight">
+    <h1>Seen this before?</h1>
+    <p class="sub">Describe a deployment before you ship it. Butterflaw recalls similar history from Hindsight and predicts the risk, side by side with a memoryless agent.</p>
+    <div class="grid g2">
+      <div class="card">
+        <h2>New deployment</h2>
+        <label>Services touched</label><div class="chips" id="svcs"></div>
+        <label for="summary">Change summary</label>
+        <textarea id="summary" rows="3">Bump pg-driver to 3.2.1 in checkout-service</textarea>
+        <label for="when">Deploy time (IST)</label><input id="when" type="datetime-local" value="2026-10-02T17:35">
+        <div class="spacer"></div>
+        <div class="row"><button class="btn primary" id="runPreflight">Run preflight</button>
+        <button class="btn ghost" data-example="0">Example: pool + payment</button>
+        <button class="btn ghost" data-example="1">Example: flagged refactor</button></div>
+      </div>
+      <div class="card risk" id="riskCard"><h2>Risk verdict</h2><p class="muted">Run a preflight to see Butterflaw's verdict.</p></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="grid g2" id="afterPreflight" style="display:none">
+      <div class="card"><h2>What Butterflaw recalled</h2><p class="muted small">Retrieved from Hindsight with semantic, keyword, entity and temporal search.</p><div id="recalled"></div></div>
+      <div class="card"><h2>Ask Butterflaw</h2><p class="muted small">Answered with Hindsight <span class="mono">reflect()</span>, reasoning over the team's memory.</p>
+        <textarea id="question" rows="2">Why are you warning me about this, and what should I do instead?</textarea><div class="spacer"></div>
+        <button class="btn dark" id="askBtn">Ask</button><div id="answer" class="spacer"></div>
+        <h2 style="margin-top:20px">Record the real outcome</h2><p class="muted small">Closing the loop: the outcome and the lesson are retained into memory.</p>
+        <input id="rootCause" placeholder="Root cause if it failed (optional)"><div class="spacer"></div>
+        <div class="row"><button class="btn ghost" data-outcome="false">Shipped safely</button><button class="btn primary" data-outcome="true">Caused an incident</button></div>
+        <p class="small" id="outcomeMsg"></p></div>
+    </div>
+  </section>
+
+  <!-- MEMORY -->
+  <section class="tab" id="tab-memory">
+    <h1>Open the brain.</h1>
+    <p class="sub">Everything Butterflaw knows lives in a Hindsight memory bank: deployment outcomes, root causes, and lessons from its own wrong predictions.</p>
+    <div class="card"><div class="row"><input id="memQ" placeholder="Search memory, e.g. 'Friday checkout deploys' or 'pg-driver'" style="flex:1;min-width:240px"><button class="btn dark" id="memSearch">Recall</button><button class="btn ghost" id="memAll">List all</button></div>
+      <p class="muted small" id="memInfo"></p><div id="memList"></div></div>
+  </section>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function api(path, opts={}) {
+  const r = await fetch(path, {headers:{'Content-Type':'application/json'}, ...opts});
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.detail || `HTTP ${r.status}`);
+  return data;
+}
+function banner(msg){ const b=$('#banner'); b.textContent=msg||''; b.style.display=msg?'block':'none'; }
+
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('active', x===b));
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.id==='tab-'+b.dataset.tab));
+  if (b.dataset.tab==='memory') loadMemory();
+});
+
+// ---------- health ----------
+api('/api/health').then(h => {
+  const miss = [!h.hindsight_key && 'HINDSIGHT_API_KEY', !h.groq_key && 'GROQ_API_KEY'].filter(Boolean);
+  if (miss.length) banner('Setup needed: add ' + miss.join(' and ') + ' to your .env file, then restart.');
+  else if (h.hindsight_error) banner('Cannot reach Hindsight: ' + h.hindsight_error);
+}).catch(e => banner(e.message));
+
+// ---------- replay ----------
+let chart, polling;
+function pct(v){ return v==null ? '–' : v + '%'; }
+function cumulative(rows, key){ let c=0; return rows.map((r,i)=>{ c+=r[key]?1:0; return Math.round(100*c/(i+1)); }); }
+function renderReplay(d) {
+  const rows = d.results || [];
+  $('#bank').textContent = d.bank_id ? 'Memory bank: ' + d.bank_id : '';
+  $('#bar').style.width = (100*(d.progress||rows.length)/(d.total||24)) + '%';
+  $('#replayStatus').textContent = d.status==='running' ? `Replaying ${rows.length}/${d.total}… each step recalls, predicts twice, then retains the outcome.`
+    : d.status==='error' ? 'Replay stopped: ' + d.error : d.status==='done' ? `Done: ${rows.length} deployments replayed.` : '';
+  $('#startReplay').disabled = d.status==='running';
+  const s = d.summary || {};
+  $('#sMem').textContent = pct(s.memory_accuracy); $('#sBase').textContent = pct(s.baseline_accuracy);
+  $('#sMem2').textContent = pct(s.memory_second_half); $('#sBase2').textContent = pct(s.baseline_second_half);
+  if (rows.length) $('#chartSummary').textContent =
+    `With memory: ${pct(s.memory_accuracy)} overall (${pct(s.memory_first_half)} first half → ${pct(s.memory_second_half)} second half). ` +
+    `Without memory: ${pct(s.baseline_accuracy)} overall (${pct(s.baseline_first_half)} → ${pct(s.baseline_second_half)}). Computed from real predictions.`;
+  const labels = rows.map(r => '#' + r.n);
+  const ds = [
+    {label:'With Hindsight memory', data:cumulative(rows,'memory_correct'), borderColor:'#F35404', backgroundColor:'#F35404', tension:.25, borderWidth:3},
+    {label:'Without memory', data:cumulative(rows,'baseline_correct'), borderColor:'#141414', backgroundColor:'#141414', borderDash:[6,4], tension:.25, borderWidth:2}];
+  if (!chart) chart = new Chart($('#chart'), {type:'line', data:{labels, datasets:ds},
+    options:{animation:{duration:300}, scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}}, plugins:{legend:{position:'bottom'}}}});
+  else { chart.data.labels = labels; chart.data.datasets.forEach((x,i)=>x.data=ds[i].data); chart.update(); }
+  const verdict = p => `<span class="pill ${p.will_fail?'fail':'safe'}">${p.will_fail?'incident':'safe'}</span> <span class="muted small">${Math.round(p.confidence*100)}%</span>`;
+  $('#rows').innerHTML = rows.slice().reverse().map(r => `<tr>
+    <td class="mono">${r.n}</td>
+    <td><div class="row"><span class="dot ${r.failed?'bad':'ok'}"></span><b class="mono">${esc(r.id)}</b><span class="muted small">${esc(r.when.replace('T',' ').slice(0,16))} · ${new Date(r.when).toLocaleDateString('en-IN',{weekday:'short'})}</span></div>
+      <div>${esc(r.summary)}</div><div class="muted small mono">${esc(r.services.join(', '))}</div>
+      ${r.failed?`<div class="small" style="color:#A21C1C">${esc(r.root_cause)}</div>`:''}</td>
+    <td><span class="pill ${r.failed?'fail':'safe'}">${r.failed?'incident':'safe'}</span></td>
+    <td>${verdict(r.with_memory)} <span class="mark ${r.memory_correct?'y':'n'}">${r.memory_correct?'✓':'✗'}</span><div class="small muted">${esc(r.with_memory.reasoning)}</div></td>
+    <td>${verdict(r.without_memory)} <span class="mark ${r.baseline_correct?'y':'n'}">${r.baseline_correct?'✓':'✗'}</span><div class="small muted">${esc(r.without_memory.reasoning)}</div></td></tr>`).join('');
+}
+async function pollReplay(){
+  try { const d = await api('/api/replay'); renderReplay(d); if (d.status==='running') polling=setTimeout(pollReplay, 2500); }
+  catch(e){ banner(e.message); }
+}
+$('#startReplay').onclick = async () => {
+  if (!confirm('Start a fresh replay? This creates a new memory bank and takes a few minutes.')) return;
+  try { await api('/api/replay/start', {method:'POST'}); banner(''); clearTimeout(polling); pollReplay(); } catch(e){ banner(e.message); }
+};
+pollReplay();
+
+// ---------- preflight ----------
+let services = [], selected = new Set(['checkout-service']), currentId = null;
+const examples = [
+  {svcs:['db-config','payment-api'], text:'Increase DB connection pool to 150 and ship payment-api retry backoff changes together', when:'2026-10-06T14:00'},
+  {svcs:['inventory-service'], text:'2,000-line rewrite of stock sync logic behind feature flag inv-sync-v3, dark launch', when:'2026-10-07T11:00'}];
+api('/api/meta').then(m => { services = m.services; drawChips(); });
+function drawChips(){ $('#svcs').innerHTML = services.map(s=>`<button type="button" class="chip ${selected.has(s)?'on':''}" aria-pressed="${selected.has(s)}" data-s="${s}">${s}</button>`).join('');
+  document.querySelectorAll('.chip').forEach(c => c.onclick = () => { selected.has(c.dataset.s)?selected.delete(c.dataset.s):selected.add(c.dataset.s); drawChips(); }); }
+document.querySelectorAll('[data-example]').forEach(b => b.onclick = () => { const e = examples[b.dataset.example];
+  selected = new Set(e.svcs); drawChips(); $('#summary').value = e.text; $('#when').value = e.when; });
+function verdictBlock(title, p){ return `<div style="margin-top:14px"><div class="muted small">${title}</div>
+  <div class="row" style="margin:6px 0"><span class="big" style="color:${p.will_fail?'var(--orange)':'var(--green)'}">${p.will_fail?'Incident likely':'Looks safe'}</span></div>
+  <div class="row"><span class="pill ${p.risk}">${esc(p.risk)} risk</span><span class="muted small">confidence ${Math.round(p.confidence*100)}%</span>
+  ${(p.cited||[]).map(c=>`<span class="pill mono">${esc(c)}</span>`).join('')}</div><p>${esc(p.reasoning)}</p></div>`; }
+$('#runPreflight').onclick = async () => {
+  if (!selected.size) return banner('Pick at least one service.');
+  const b = $('#runPreflight'); b.disabled = true; b.textContent = 'Searching memory…';
+  try {
+    const r = await api('/api/preflight', {method:'POST', body:JSON.stringify({services:[...selected], summary:$('#summary').value, when:$('#when').value+':00'})});
+    currentId = r.deployment.id; banner('');
+    $('#riskCard').innerHTML = `<h2>Risk verdict <span class="mono muted small">${esc(currentId)}</span></h2>` +
+      verdictBlock('With Hindsight memory', r.with_memory) + '<hr style="border:0;border-top:1px solid var(--line)">' + verdictBlock('Without memory (same LLM)', r.without_memory);
+    $('#recalled').innerHTML = (r.recalled||[]).map(m=>`<div class="mem"><span class="pill mono">${esc(m.type)}</span> <span class="muted small">${esc(m.when)}</span><div class="small">${esc(m.text)}</div></div>`).join('') || '<p class="muted">Nothing relevant in memory.</p>';
+    $('#afterPreflight').style.display = 'grid'; $('#answer').innerHTML=''; $('#outcomeMsg').textContent='';
+  } catch(e){ banner(e.message); } finally { b.disabled=false; b.textContent='Run preflight'; }
+};
+$('#askBtn').onclick = async () => {
+  const b=$('#askBtn'); b.disabled=true; $('#answer').innerHTML='<p class="muted">Reflecting over memory…</p>';
+  try { const r = await api('/api/ask', {method:'POST', body:JSON.stringify({question:$('#question').value, preflight_id:currentId})});
+    $('#answer').innerHTML = `<div class="card" style="background:#FFFBF4"><div style="white-space:pre-wrap">${esc(r.text)}</div><div class="muted small" style="margin-top:8px">Based on ${r.memories_used} memories</div></div>`;
+  } catch(e){ $('#answer').innerHTML=''; banner(e.message);} finally{ b.disabled=false; }
+};
+document.querySelectorAll('[data-outcome]').forEach(b => b.onclick = async () => {
+  try { const r = await api('/api/outcome', {method:'POST', body:JSON.stringify({preflight_id:currentId, failed:b.dataset.outcome==='true', root_cause:$('#rootCause').value})});
+    $('#outcomeMsg').innerHTML = '<b>Lesson retained.</b> ' + esc(r.retained);
+  } catch(e){ banner(e.message); }
+});
+
+// ---------- memory ----------
+async function loadMemory(q){
+  $('#memInfo').textContent = q ? 'Recalling…' : 'Loading…';
+  try { const r = await api('/api/memory' + (q ? '?q=' + encodeURIComponent(q) : ''));
+    $('#memInfo').textContent = r.bank_id ? `${q?'Recall results':'Memories'} in ${r.bank_id}: ${r.total}` : 'No memory bank yet. Run the replay or a preflight first.';
+    $('#memList').innerHTML = (r.items||[]).map(m=>`<div class="mem"><span class="pill mono">${esc(m.type)}</span> <span class="muted small">${esc(m.when)} ${esc(m.context||'')}</span><div>${esc(m.text)}</div></div>`).join('');
+  } catch(e){ $('#memInfo').textContent=''; banner(e.message); }
+}
+$('#memSearch').onclick = () => loadMemory($('#memQ').value.trim());
+$('#memAll').onclick = () => loadMemory();
+</script>
+</body>
+</html>
