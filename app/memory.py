@@ -76,9 +76,9 @@ def reflect(bank_id: str, question: str) -> dict:
     return {"text": response.text, "memories_used": used}
 
 
-def list_memories(bank_id: str, limit: int = 100) -> dict:
+def list_memories(bank_id: str, limit: int = 100, type: str | None = None) -> dict:
     with _client() as c:
-        response = c.list_memories(bank_id=bank_id, limit=limit)
+        response = c.list_memories(bank_id=bank_id, limit=limit, type=type or None)
     items = [{"text": m.text, "type": m.fact_type or "", "context": m.context or "",
               "when": str(m.occurred_start or m.mentioned_at or "")[:10]} for m in (response.items or [])]
     return {"total": response.total, "items": items}

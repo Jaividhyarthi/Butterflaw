@@ -10,7 +10,7 @@ from datetime import datetime
 from pathlib import Path
 
 from . import llm, memory
-from .data import HISTORY, REPLAY
+from .data import DEFAULT_GUARDRAILS, HISTORY, INCIDENT_DETAILS, REPLAY
 
 STATE_FILE = Path(__file__).resolve().parent.parent / "data" / "state.json"
 _lock = threading.Lock()
@@ -52,8 +52,11 @@ def update_state(fn) -> dict:
 # ---------------- text helpers ----------------
 def describe(dep: dict) -> str:
     when = datetime.fromisoformat(dep["when"])
-    return (f"Deploy {dep['version']} on {when:%A %d %b %Y} at {when:%H:%M} IST. "
+    text = (f"Deploy {dep['version']} on {when:%A %d %b %Y} at {when:%H:%M} IST. "
             f"Services: {', '.join(dep['services'])}. Change: {dep['summary']}.")
+    if dep.get("diff"):
+        text += f" Diff excerpt: {dep['diff'][:600]}"
+    return text
 
 
 def outcome_memory(dep: dict, prediction: dict | None = None) -> str:
@@ -96,12 +99,16 @@ def ensure_bank() -> str:
 
 
 # ---------------- prediction ----------------
-def _judge(dep: dict, history: list[dict]) -> dict:
+def _judge(dep: dict, history: list[dict], guardrails: list[dict] | None = None) -> dict:
     if history:
         lines = "\n".join(f"- [{m['when']}] {m['text']}" for m in history)
     else:
         lines = "(no team history available)"
-    user = f"TEAM HISTORY:\n{lines}\n\nNEW DEPLOYMENT:\n{describe(dep)}"
+    user = f"TEAM HISTORY:\n{lines}\n\n"
+    if guardrails:
+        user += "TEAM GUARDRAILS (learned rules; a deployment that violates one is very likely to fail):\n"
+        user += "\n".join(f"- {g['id']}: {g['rule']}" for g in guardrails) + "\n\n"
+    user += f"NEW DEPLOYMENT:\n{describe(dep)}"
     out = llm.chat_json(SYSTEM, user)
     return {
         "will_fail": bool(out.get("will_fail")),
@@ -114,7 +121,7 @@ def _judge(dep: dict, history: list[dict]) -> dict:
 
 def predict(bank_id: str, dep: dict) -> dict:
     recalled = memory.recall(bank_id, describe(dep))
-    with_memory = _judge(dep, recalled)
+    with_memory = _judge(dep, recalled, get_guardrails())
     without_memory = _judge(dep, [])
     return {"with_memory": with_memory, "without_memory": without_memory, "recalled": recalled}
 
@@ -172,12 +179,23 @@ def replay_summary(results: list[dict]) -> dict:
 
 
 # ---------------- interactive preflight ----------------
-def preflight(services: list[str], summary: str, when: str) -> dict:
+def blast_radius(cited: list[str]) -> dict | None:
+    matches = [dict(INCIDENT_DETAILS[c], id=c) for c in cited if c in INCIDENT_DETAILS]
+    if not matches:
+        return None
+    worst = max(matches, key=lambda m: m["amount_inr"] + m["failed_requests"])
+    return {"based_on": worst["id"], "title": worst["title"], "failed_requests": worst["failed_requests"],
+            "amount_inr": worst["amount_inr"], "downtime_min": worst["downtime_min"]}
+
+
+def preflight(services: list[str], summary: str, when: str, version: str = "", diff: str = "") -> dict:
     bank_id = ensure_bank()
-    dep = {"id": f"PRE-{uuid.uuid4().hex[:6].upper()}", "version": "next",
-           "when": when, "services": services, "summary": summary, "failed": False, "root_cause": ""}
+    dep = {"id": f"PRE-{uuid.uuid4().hex[:6].upper()}", "version": version.strip() or "next",
+           "when": when, "services": services, "summary": summary, "diff": diff.strip(),
+           "failed": False, "root_cause": ""}
     result = predict(bank_id, dep)
-    record = {"deployment": dep, **result, "outcome": None}
+    record = {"deployment": dep, **result, "outcome": None,
+              "blast_radius": blast_radius(result["with_memory"]["cited"]) if result["with_memory"]["will_fail"] else None}
     update_state(lambda s: s["preflights"].__setitem__(dep["id"], record))
     return record
 
@@ -200,3 +218,60 @@ def ask(question: str, preflight_id: str | None) -> dict:
         if record:
             question = f"About this deployment: {describe(record['deployment'])}\nQuestion: {question}"
     return memory.reflect(bank_id, question)
+
+
+# ---------------- guardrails ----------------
+def get_guardrails() -> list[dict]:
+    return load_state().get("guardrails") or list(DEFAULT_GUARDRAILS)
+
+
+def add_guardrail(rule: str, source: str) -> dict:
+    state = load_state()
+    rails = state.get("guardrails") or list(DEFAULT_GUARDRAILS)
+    g = {"id": f"GR-{len(rails) + 1}", "rule": rule.strip()[:400], "source": source.strip()[:20],
+         "added": datetime.now().strftime("%Y-%m-%d")}
+    if state.get("bank_id"):
+        memory.retain(state["bank_id"], f"Team guardrail {g['id']} adopted: {g['rule']}"
+                      + (f" (learned from {g['source']})" if g["source"] else ""),
+                      datetime.now(), context="guardrail", metadata={"guardrail_id": g["id"], "source": g["source"]})
+    update_state(lambda s: s.__setitem__("guardrails", rails + [g]))
+    return g
+
+
+# ---------------- incidents + lessons (UI views) ----------------
+def incidents() -> list[dict]:
+    state = load_state()
+    seen = {r["id"] for r in state["replay"].get("results", [])}
+    rows = [dict(d, source="history") for d in HISTORY if d["failed"]]
+    rows += [dict(d, source="replay") for d in REPLAY if d["failed"] and d["id"] in seen]
+    for p in state.get("preflights", {}).values():
+        if p.get("outcome") and p["outcome"]["failed"]:
+            rows.append(dict(p["deployment"], failed=True, root_cause=p["outcome"]["root_cause"], source="preflight"))
+    out = []
+    for d in rows:
+        info = INCIDENT_DETAILS.get(d["id"], {})
+        out.append({**d, "title": info.get("title", d["summary"]), "severity": info.get("severity", "medium"),
+                    "failed_requests": info.get("failed_requests"), "amount_inr": info.get("amount_inr"),
+                    "downtime_min": info.get("downtime_min"), "fix_type": info.get("fix_type", "patch"),
+                    "trail": info.get("trail") or [d["summary"], d.get("root_cause", "")],
+                    "resolution": info.get("resolution", "")})
+    return sorted(out, key=lambda x: x["when"], reverse=True)
+
+
+def lessons() -> list[dict]:
+    state = load_state()
+    out = []
+    for r in state["replay"].get("results", []):
+        if not r["memory_correct"]:
+            predicted = "INCIDENT" if r["with_memory"]["will_fail"] else "SAFE"
+            out.append({"id": r["id"], "when": r["when"], "summary": r["summary"],
+                        "lesson": f"Predicted {predicted}, actual {'INCIDENT' if r['failed'] else 'SAFE'}. "
+                                  + ("Changes like this are dangerous for this team even though they look harmless."
+                                     if r["failed"] else "Changes like this are safe here; do not over-warn.")})
+    for p in state.get("preflights", {}).values():
+        if p.get("outcome"):
+            ok = p["with_memory"]["will_fail"] == p["outcome"]["failed"]
+            out.append({"id": p["deployment"]["id"], "when": p["deployment"]["when"], "summary": p["deployment"]["summary"],
+                        "lesson": ("Prediction confirmed." if ok else "Prediction was wrong; lesson retained.")
+                                  + (f" Root cause: {p['outcome']['root_cause']}" if p["outcome"]["failed"] else "")})
+    return sorted(out, key=lambda x: x["when"], reverse=True)

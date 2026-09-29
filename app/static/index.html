@@ -3,244 +3,496 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Butterflaw</title>
+<title>Butterflaw · Reliability Memory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root{--bg:#F7F3EA;--card:#fff;--ink:#141414;--muted:#6B6560;--line:rgba(20,20,20,.12);--orange:#F35404;--green:#16A34A;--amber:#D97706;--red:#DC2626}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,sans-serif}
-a{color:inherit}.mono{font-family:"JetBrains Mono",monospace;font-size:13px}
-header{display:flex;align-items:center;gap:28px;padding:18px 40px;border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:5}
-.brand{display:flex;align-items:center;gap:10px;font:700 22px "Space Grotesk",sans-serif}
-nav{display:flex;gap:6px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px}
-nav button{border:0;background:none;padding:8px 16px;border-radius:999px;font:600 14px Inter;cursor:pointer;color:var(--muted)}
-nav button.active{background:var(--ink);color:#fff}
-main{max-width:1180px;margin:0 auto;padding:32px 40px 80px}
-h1{font:700 44px/1.05 "Space Grotesk",sans-serif;margin:0 0 10px;letter-spacing:-1.5px}
-h2{font:700 24px "Space Grotesk",sans-serif;margin:0 0 6px}.sub{color:var(--muted);max-width:760px;margin:0 0 24px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
-.grid{display:grid;gap:16px}.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:1fr 1fr}
-.stat .v{font:700 34px "Space Grotesk";margin-top:4px}.stat .l{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.5px}
-.btn{border:0;border-radius:999px;padding:11px 20px;font:600 14px Inter;cursor:pointer}
-.btn.primary{background:var(--orange);color:#fff}.btn.dark{background:var(--ink);color:#fff}.btn.ghost{background:#fff;border:1px solid var(--line)}
-.btn:disabled{opacity:.5;cursor:wait}.btn:focus-visible,input:focus-visible,textarea:focus-visible,nav button:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
-.banner{padding:12px 16px;border-radius:10px;margin-bottom:18px;background:#FFF1E8;border:1px solid #F8C3A3;color:#8A2D00;display:none}
-.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
-.ok{background:var(--green)}.bad{background:var(--red)}.warn{background:var(--amber)}
-table{width:100%;border-collapse:collapse;font-size:14px}th{text-align:left;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.4px;padding:8px;border-bottom:1px solid var(--line)}
-td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
-.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid var(--line);white-space:nowrap}
-.pill.fail{background:#FDECEC;color:#A21C1C;border-color:#F5C2C2}.pill.safe{background:#E8F6EE;color:#136C35;border-color:#BFE5CD}
-.pill.high{background:#FFE9DD;color:#B83C00}.pill.medium{background:#FFF4DB;color:#8A5A00}.pill.low{background:#E8F6EE;color:#136C35}
-.mark{font-weight:700}.mark.y{color:var(--green)}.mark.n{color:var(--red)}
-.risk{position:relative;overflow:hidden}.risk:before{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;background:var(--orange);opacity:.08;transform:rotate(25deg);border-radius:30px}
-.big{font:700 52px "Space Grotesk";line-height:1}.muted{color:var(--muted)}
-label{display:block;font-weight:600;font-size:13px;margin:14px 0 6px}
-input,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff}
-.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;cursor:pointer;font:500 13px "JetBrains Mono"}
-.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-.mem{padding:10px 0;border-bottom:1px solid var(--line)}.mem:last-child{border:0}
-.tab{display:none}.tab.active{display:block}
-.progress{height:8px;background:#EAE3D5;border-radius:999px;overflow:hidden}.progress>div{height:100%;background:var(--orange);width:0;transition:width .4s}
-.small{font-size:13px}.spacer{height:18px}
-@media(max-width:860px){.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}header{flex-wrap:wrap;padding:14px 16px}main{padding:22px 16px}h1{font-size:32px}}
+:root{
+  --side:#14202A;--side2:#1C2A36;--sideline:#263644;--sidetext:#A9B6C2;
+  --bg:#F5F3EE;--card:#FFFFFF;--line:#E7E2D8;--line2:#D9D2C4;
+  --ink:#161B21;--muted:#6E6A63;--dim:#9A958C;
+  --acc:#F5C518;--acc2:#E8B400;--accsoft:#FFF6D1;
+  --red:#D93B3B;--redsoft:#FDECEC;--green:#1E9E61;--greensoft:#E6F6EE;--amber:#D98A0B;--ambersoft:#FFF3DC;
+  --font:"Inter",system-ui,sans-serif;--disp:"Space Grotesk","Inter",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 var(--font)}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono)}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+/* sidebar */
+aside{background:var(--side);color:#fff;position:sticky;top:0;height:100vh;padding:18px 12px;display:flex;flex-direction:column;gap:4px}
+.brand{display:flex;gap:10px;align-items:center;padding:4px 8px 18px}
+.brand b{font:700 18px var(--disp);letter-spacing:-.3px}
+.brand small{display:block;font:500 9.5px var(--mono);letter-spacing:1.4px;color:var(--sidetext);text-transform:uppercase}
+.ws{font:600 10px var(--mono);letter-spacing:1.4px;color:#6F8090;text-transform:uppercase;padding:8px 10px 6px}
+.nav{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;color:var(--sidetext);font-weight:500;border:0;background:none;cursor:pointer;width:100%;text-align:left}
+.nav svg{width:17px;height:17px;flex:none}
+.nav:hover{background:var(--side2);color:#fff}
+.nav.active{background:var(--acc);color:#14202A;font-weight:700}
+.agent{margin-top:auto;background:var(--side2);border:1px solid var(--sideline);border-radius:12px;padding:12px;font-size:12px;color:var(--sidetext)}
+.agent b{color:#fff}
+.sd{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;background:#6F8090}
+.sd.on{background:#3DDC84;box-shadow:0 0 8px #3DDC84}.sd.off{background:var(--red)}
+/* main */
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 32px;border-bottom:1px solid var(--line);background:rgba(245,243,238,.9);backdrop-filter:blur(6px);position:sticky;top:0;z-index:5}
+.crumb{font:600 11px var(--mono);letter-spacing:1.2px;text-transform:uppercase;color:var(--dim)}
+.crumb b{color:var(--ink)}
+.topright{display:flex;gap:12px;align-items:center}
+.ops{font-size:12px;color:var(--muted)}
+main{padding:26px 32px 80px;max-width:1320px}
+.eyebrow{font:600 11px var(--mono);letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+h1{font:700 38px/1.08 var(--disp);letter-spacing:-1.2px;margin:6px 0 8px}
+.lead{color:var(--muted);max-width:760px;margin:0}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:22px}
+h2{font:600 16px var(--disp);margin:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.card-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.tagline{font:600 10.5px var(--mono);letter-spacing:1px;text-transform:uppercase;color:var(--dim)}
+.grid{display:grid;gap:16px}.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1fr 1fr}.g21{grid-template-columns:1.6fr 1fr}.g12{grid-template-columns:1fr 1.3fr}
+.gap{height:16px}
+.kpi .l{font-size:12px;color:var(--muted)}.kpi .v{font:700 30px var(--disp);letter-spacing:-.6px;margin-top:4px}.kpi .d{font-size:12px;color:var(--dim)}
+.kpi.hi{background:linear-gradient(140deg,#FFF6D1,#fff 70%);border-color:#F1DE8E}
+.btn{border:1px solid var(--line2);background:#fff;border-radius:10px;padding:9px 15px;font-weight:600;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+.btn:hover{border-color:var(--ink)}
+.btn.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.acc{background:var(--acc);border-color:var(--acc);color:#14202A}
+.btn:disabled{opacity:.5;cursor:wait}
+:focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font:600 11px var(--font);border:1px solid var(--line2);color:var(--muted);white-space:nowrap;background:#fff}
+.pill.high,.pill.fail{background:var(--redsoft);color:var(--red);border-color:#F4C5C5}
+.pill.medium{background:var(--ambersoft);color:var(--amber);border-color:#F2D9A8}
+.pill.low,.pill.safe{background:var(--greensoft);color:var(--green);border-color:#BFE6D1}
+.pill.mono{font-family:var(--mono);font-weight:500}
+.pill.acc{background:var(--accsoft);color:#8A6A00;border-color:#F1DE8E}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}.dot.bad{background:var(--red)}.dot.ok{background:var(--green)}
+.banner{display:none;margin-bottom:16px;padding:12px 14px;border-radius:10px;background:var(--redsoft);border:1px solid #F4C5C5;color:#8E2020}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.small{font-size:12.5px}.muted{color:var(--muted)}.dim{color:var(--dim)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font:600 10.5px var(--mono);letter-spacing:.8px;text-transform:uppercase;color:var(--dim);padding:9px;border-bottom:1px solid var(--line)}
+td{padding:11px 9px;border-bottom:1px solid var(--line);vertical-align:top;font-size:13.5px}
+.okm{color:var(--green);font-weight:700}.nom{color:var(--red);font-weight:700}
+label{display:block;font:600 10.5px var(--mono);letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+input,textarea,select{width:100%;background:#FBFAF7;border:1px solid var(--line2);border-radius:9px;padding:10px 12px;resize:vertical}
+input:focus,textarea:focus,select:focus{border-color:var(--acc2);background:#fff;outline:none}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{border:1px solid var(--line2);background:#fff;border-radius:999px;padding:5px 11px;cursor:pointer;font:500 12px var(--mono);color:var(--muted)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.view{display:none;animation:f .2s ease}.view.active{display:block}
+@keyframes f{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+.empty{padding:34px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line2);border-radius:12px;background:#FBFAF7}
+.empty b{display:block;color:var(--ink);margin-bottom:4px;font-family:var(--disp)}
+/* heatmap */
+.heat{display:grid;grid-template-columns:40px repeat(6,1fr);gap:4px;font-size:11px}
+.heat .h{color:var(--dim);font-family:var(--mono);text-align:center}.heat .d{color:var(--muted);font-family:var(--mono);display:flex;align-items:center}
+.cell{height:28px;border-radius:6px;background:#F3EFE6;display:flex;align-items:center;justify-content:center;font:600 10.5px var(--mono)}
+/* activity */
+.act{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.act:last-child{border:0}.act:hover .t{text-decoration:underline}
+.act .ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:var(--accsoft);flex:none}
+.act .t{font-weight:600;font-family:var(--mono);font-size:13px}.act .s{color:var(--muted);font-size:12.5px}
+.bar{height:6px;border-radius:999px;background:#EFEAE0;overflow:hidden;margin-top:5px}.bar>div{height:100%;border-radius:999px}
+/* verdict */
+.cockpit{min-height:340px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:radial-gradient(circle at 50% 40%,#FFF9E3,transparent 60%),repeating-linear-gradient(0deg,#fff,#fff 23px,#F6F2EA 24px),#fff}
+.verdict{border:1px solid var(--line);border-radius:12px;padding:15px;background:#FBFAF7}
+.verdict.vmem{border-color:#F1DE8E;background:linear-gradient(140deg,#FFF6D1,#FFFDF5 60%)}
+.verdict .big{font:700 24px var(--disp);margin:4px 0 8px}.big.bad{color:var(--red)}.big.good{color:var(--green)}
+.meter{height:6px;border-radius:999px;background:#EFEAE0;overflow:hidden;margin:8px 0}.meter>div{height:100%}
+.blast{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.blast div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px}.blast b{display:block;font:700 20px var(--disp)}.blast span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-family:var(--mono)}
+.mem{padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}.mem:last-child{border:0}
+.answer{margin-top:10px;padding:13px;border-radius:10px;background:#FBFAF7;border:1px solid var(--line2);white-space:pre-wrap}
+.progress{height:8px;border-radius:999px;background:#EFEAE0;overflow:hidden}.progress>div{height:100%;width:0;background:var(--acc2);transition:width .4s}
+/* incidents */
+.inc{display:flex;gap:14px;align-items:flex-start;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer}
+.inc:hover{border-color:var(--ink)}
+.trail{counter-reset:s;display:grid;gap:10px}
+.step{display:flex;gap:12px;align-items:flex-start}
+.step .n{width:26px;height:26px;border-radius:50%;background:var(--accsoft);border:1px solid #F1DE8E;display:grid;place-items:center;font:600 11px var(--mono);flex:none}
+.step:last-child .n{background:var(--redsoft);border-color:#F4C5C5;color:var(--red)}
+.dep{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px}.dep:last-child{border:0}
+.guard{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}.guard:last-child{border:0}
+.shield{width:26px;height:26px;border-radius:50%;background:var(--greensoft);display:grid;place-items:center;color:var(--green);flex:none}
+@media(max-width:1050px){.app{grid-template-columns:1fr}aside{position:static;height:auto;flex-direction:row;flex-wrap:wrap}.agent,.ws{display:none}.topbar{position:static}main{padding:20px 16px 60px}.g4,.g3{grid-template-columns:1fr 1fr}.g2,.g21,.g12{grid-template-columns:1fr}.topbar{padding:12px 16px}}
+@media(max-width:560px){.g4,.g3{grid-template-columns:1fr}h1{font-size:30px}.blast{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header>
-  <div class="brand"><svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 16 L4 6 Q2 16 7 20 Z" fill="#F35404"/><path d="M16 16 L28 6 Q30 16 25 20 Z" fill="#141414"/><path d="M16 16 L8 26 Q14 28 16 20 Z" fill="#141414"/><path d="M16 16 L24 26 Q18 28 16 20 Z" fill="#F35404"/></svg>Butterflaw</div>
-  <nav aria-label="Main">
-    <button class="active" data-tab="learn">Learning curve</button>
-    <button data-tab="preflight">Preflight</button>
-    <button data-tab="memory">Memory</button>
-  </nav>
-  <span class="muted small" id="bank"></span>
-</header>
+<div class="app">
+<aside>
+  <div class="brand"><svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 16 L4 6 Q2 16 7 20 Z" fill="#F5C518"/><path d="M16 16 L28 6 Q30 16 25 20 Z" fill="#F5C518" opacity=".75"/><path d="M16 16 L8 26 Q14 28 16 20 Z" fill="#fff"/><path d="M16 16 L24 26 Q18 28 16 20 Z" fill="#fff" opacity=".75"/></svg>
+    <div><b>butterflaw</b><small>reliability memory</small></div></div>
+  <div class="ws">Workspace</div>
+  <button class="nav" data-go="command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Command center</button>
+  <button class="nav" data-go="preflight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h8l-1 8 10-12h-8z"/></svg>Preflight</button>
+  <button class="nav" data-go="replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Learning replay</button>
+  <button class="nav" data-go="incidents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3L2 20h20z"/><path d="M12 10v4M12 17v.5"/></svg>Incidents</button>
+  <button class="nav" data-go="memory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3"/></svg>Memory inspector</button>
+  <button class="nav" data-go="guardrails"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg>Guardrails</button>
+  <div class="agent">
+    <div><span class="sd" id="hsDot"></span><b>Hindsight</b> <span id="hsTxt">checking…</span></div>
+    <div style="margin-top:5px"><span class="sd" id="gqDot"></span><b>Groq</b> <span id="gqTxt">checking…</span></div>
+    <div class="mono" style="margin-top:8px;font-size:10.5px;color:#6F8090" id="bankTxt">no memory bank yet</div>
+  </div>
+</aside>
+
+<div>
+<div class="topbar"><div class="crumb">Workspace / <b id="crumb">Command center</b></div>
+  <div class="topright"><span class="ops" id="opsTxt"><span class="sd"></span>checking API…</span><button class="btn dark" data-go="preflight">＋ New preflight</button></div></div>
 <main>
-  <div class="banner" id="banner" role="alert"></div>
+<div class="banner" id="banner" role="alert"></div>
 
-  <!-- LEARNING CURVE -->
-  <section class="tab active" id="tab-learn">
-    <h1>Every outage starts with a wing flap.</h1>
-    <p class="sub">Butterflaw predicts whether a deployment will break production. Two agents, same LLM, same prompt. One has <b>Hindsight memory</b> of the team's past deployments and its own mistakes; the other has none. Watch 24 real-looking deployments replay in order: each agent predicts <i>before</i> seeing the outcome, then the outcome is retained into memory.</p>
-    <div class="row">
-      <button class="btn primary" id="startReplay">Run replay with fresh memory</button>
-      <span class="muted small" id="replayStatus"></span>
-    </div>
-    <div class="spacer"></div>
-    <div class="progress" aria-hidden="true"><div id="bar"></div></div>
-    <div class="spacer"></div>
-    <div class="grid g4">
-      <div class="card stat"><div class="l">With memory · overall</div><div class="v" id="sMem">–</div></div>
-      <div class="card stat"><div class="l">Without memory · overall</div><div class="v" id="sBase">–</div></div>
-      <div class="card stat"><div class="l">With memory · 2nd half</div><div class="v" id="sMem2">–</div></div>
-      <div class="card stat"><div class="l">Without memory · 2nd half</div><div class="v" id="sBase2">–</div></div>
-    </div>
-    <div class="spacer"></div>
-    <div class="card"><h2>Cumulative prediction accuracy</h2><p class="muted small" id="chartSummary">Run the replay to see the curve.</p><canvas id="chart" height="110" aria-label="Accuracy chart"></canvas></div>
-    <div class="spacer"></div>
-    <div class="card"><h2>Deployment by deployment</h2>
-      <div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Deployment</th><th>Actual</th><th>With memory</th><th>Without memory</th></tr></thead><tbody id="rows"></tbody></table></div>
-    </div>
-  </section>
+<!-- COMMAND CENTER -->
+<section class="view" id="v-command">
+  <div class="head"><div><div class="eyebrow">Deployment intelligence / overview</div><h1>Every outage starts with a wing flap.</h1>
+    <p class="lead">Butterflaw remembers every deployment your team has shipped, predicts which new ones will break production, and learns from its own wrong predictions, using Hindsight agent memory.</p></div></div>
+  <div class="grid g4">
+    <div class="card kpi hi"><div class="l">Accuracy with memory</div><div class="v" id="kMem">–</div><div class="d" id="kMemD">run the replay</div></div>
+    <div class="card kpi"><div class="l">Accuracy without memory</div><div class="v" id="kBase">–</div><div class="d">same LLM, same prompt</div></div>
+    <div class="card kpi"><div class="l">Incidents in memory</div><div class="v" id="kInc">–</div><div class="d">with known root causes</div></div>
+    <div class="card kpi"><div class="l">Active guardrails</div><div class="v" id="kGr">–</div><div class="d">learned rules</div></div>
+  </div>
+  <div class="gap"></div>
+  <div class="grid g21">
+    <div class="card"><div class="card-h"><h2>Recent deployment activity</h2><span class="tagline">Latest first</span></div><div id="activity"></div></div>
+    <div class="card"><div class="card-h"><h2>Services under watch</h2><span class="tagline">By incident memory</span></div><div id="services"></div></div>
+  </div>
+  <div class="gap"></div>
+  <div class="grid g2">
+    <div class="card"><div class="card-h"><h2>When do deploys break?</h2><span class="tagline">incidents / deploys</span></div><div class="heat" id="heat"></div></div>
+    <div class="card"><div class="card-h"><h2>Memory advantage</h2><span class="tagline">cumulative accuracy</span></div><div style="height:220px"><canvas id="miniChart" aria-label="Memory advantage chart"></canvas></div></div>
+  </div>
+</section>
 
-  <!-- PREFLIGHT -->
-  <section class="tab" id="tab-preflight">
-    <h1>Seen this before?</h1>
-    <p class="sub">Describe a deployment before you ship it. Butterflaw recalls similar history from Hindsight and predicts the risk, side by side with a memoryless agent.</p>
-    <div class="grid g2">
-      <div class="card">
-        <h2>New deployment</h2>
-        <label>Services touched</label><div class="chips" id="svcs"></div>
-        <label for="summary">Change summary</label>
-        <textarea id="summary" rows="3">Bump pg-driver to 3.2.1 in checkout-service</textarea>
-        <label for="when">Deploy time (IST)</label><input id="when" type="datetime-local" value="2026-10-02T17:35">
-        <div class="spacer"></div>
-        <div class="row"><button class="btn primary" id="runPreflight">Run preflight</button>
-        <button class="btn ghost" data-example="0">Example: pool + payment</button>
-        <button class="btn ghost" data-example="1">Example: flagged refactor</button></div>
-      </div>
-      <div class="card risk" id="riskCard"><h2>Risk verdict</h2><p class="muted">Run a preflight to see Butterflaw's verdict.</p></div>
+<!-- PREFLIGHT -->
+<section class="view" id="v-preflight">
+  <div class="head"><div><div class="eyebrow">Deployment intelligence / preflight</div><h1>Before the wingbeat.</h1>
+    <p class="lead">Give the agent the shape of a change. It brings forward the incidents your team would otherwise rediscover, and shows what a memoryless agent would have said.</p></div><span class="pill acc">● memory-backed</span></div>
+  <div class="grid g12">
+    <div class="card">
+      <div class="card-h"><h2>Submit a deployment</h2><span class="tagline">services + summary required</span></div>
+      <label for="pfVersion">Version or commit</label><input id="pfVersion" value="release/2026.10.02" class="mono">
+      <label>Services touched</label><div class="chips" id="svcs"></div>
+      <label for="pfSummary">Change summary</label><textarea id="pfSummary" rows="3">Bump pg-driver to 3.2.1 in checkout-service</textarea>
+      <label for="pfDiff">Diff excerpt (optional)</label><textarea id="pfDiff" rows="3" class="mono" placeholder="Paste the risky bits if they are not in the summary…">-  "pg-driver": "3.1.4"
++  "pg-driver": "3.2.1"</textarea>
+      <label for="pfWhen">Planned deploy time (IST)</label><input id="pfWhen" type="datetime-local" value="2026-10-02T17:35">
+      <div class="gap"></div>
+      <button class="btn dark" id="runPf" style="width:100%;justify-content:center">⚡ Run risk assessment</button>
+      <div class="row" style="margin-top:10px"><span class="small dim">Examples:</span><button class="chip" data-ex="0">pool + payment</button><button class="chip" data-ex="1">flagged refactor</button><button class="chip" data-ex="2">Friday hotfix</button></div>
     </div>
-    <div class="spacer"></div>
-    <div class="grid g2" id="afterPreflight" style="display:none">
-      <div class="card"><h2>What Butterflaw recalled</h2><p class="muted small">Retrieved from Hindsight with semantic, keyword, entity and temporal search.</p><div id="recalled"></div></div>
-      <div class="card"><h2>Ask Butterflaw</h2><p class="muted small">Answered with Hindsight <span class="mono">reflect()</span>, reasoning over the team's memory.</p>
-        <textarea id="question" rows="2">Why are you warning me about this, and what should I do instead?</textarea><div class="spacer"></div>
-        <button class="btn dark" id="askBtn">Ask</button><div id="answer" class="spacer"></div>
-        <h2 style="margin-top:20px">Record the real outcome</h2><p class="muted small">Closing the loop: the outcome and the lesson are retained into memory.</p>
-        <input id="rootCause" placeholder="Root cause if it failed (optional)"><div class="spacer"></div>
-        <div class="row"><button class="btn ghost" data-outcome="false">Shipped safely</button><button class="btn primary" data-outcome="true">Caused an incident</button></div>
-        <p class="small" id="outcomeMsg"></p></div>
-    </div>
-  </section>
+    <div class="card" id="pfResult"><div class="cockpit"><svg width="40" height="40" viewBox="0 0 32 32"><path d="M16 16 L4 6 Q2 16 7 20 Z" fill="#F5C518"/><path d="M16 16 L28 6 Q30 16 25 20 Z" fill="#F5C518" opacity=".7"/></svg><h2 style="margin-top:12px">The cockpit is waiting</h2><p class="small muted">Run a preflight to see risk, blast radius, and the memories behind the call.</p><div class="tagline">predict · cite · learn</div></div></div>
+  </div>
+  <div class="gap"></div>
+  <div class="grid g2" id="pfAfter" style="display:none">
+    <div class="card"><div class="card-h"><h2>Memories behind the call</h2><span class="tagline">Hindsight recall()</span></div><div id="recalled"></div></div>
+    <div class="card"><div class="card-h"><h2>Ask Butterflaw</h2><span class="tagline">Hindsight reflect()</span></div>
+      <textarea id="question" rows="2">Why are you warning me about this, and what should I do instead?</textarea>
+      <div style="margin-top:8px"><button class="btn acc" id="askBtn">Ask</button></div><div id="answer"></div>
+      <div class="gap"></div><h2>Record the real outcome</h2><p class="small muted">Closes the loop: the outcome and the lesson are retained into Hindsight.</p>
+      <input id="rootCause" placeholder="Root cause if it failed (optional)">
+      <div class="row" style="margin-top:8px"><button class="btn" data-out="false">✓ Shipped safely</button><button class="btn" data-out="true" style="color:var(--red)">✗ Caused an incident</button></div>
+      <p class="small" id="outMsg"></p></div>
+  </div>
+</section>
 
-  <!-- MEMORY -->
-  <section class="tab" id="tab-memory">
-    <h1>Open the brain.</h1>
-    <p class="sub">Everything Butterflaw knows lives in a Hindsight memory bank: deployment outcomes, root causes, and lessons from its own wrong predictions.</p>
-    <div class="card"><div class="row"><input id="memQ" placeholder="Search memory, e.g. 'Friday checkout deploys' or 'pg-driver'" style="flex:1;min-width:240px"><button class="btn dark" id="memSearch">Recall</button><button class="btn ghost" id="memAll">List all</button></div>
-      <p class="muted small" id="memInfo"></p><div id="memList"></div></div>
-  </section>
+<!-- REPLAY -->
+<section class="view" id="v-replay">
+  <div class="head"><div><div class="eyebrow">Counterfactual learning / 24 deployments</div><h1>Replay the wingbeat.</h1>
+    <p class="lead">The same deployments through two lenses: what the agent knew from memory, and what it would have guessed without it. Each prediction is made before the outcome is revealed.</p></div>
+    <button class="btn dark" id="startReplay">↻ Start fresh replay</button></div>
+  <div class="card"><div class="row" style="justify-content:space-between"><div><div class="tagline">Replay progress</div><div style="font:700 28px var(--disp)" id="rpPct">0%</div></div><span class="small muted" id="rpStatus"></span></div>
+    <div class="progress" style="margin-top:8px"><div id="rpBar"></div></div></div>
+  <div class="gap"></div>
+  <div class="grid g4">
+    <div class="card kpi hi"><div class="l">With memory</div><div class="v" id="sMem">–</div><div class="d" id="sMemN"></div></div>
+    <div class="card kpi"><div class="l">Without memory</div><div class="v" id="sBase">–</div><div class="d" id="sBaseN"></div></div>
+    <div class="card kpi"><div class="l">Memory advantage</div><div class="v" id="sAdv">–</div><div class="d">percentage points</div></div>
+    <div class="card kpi"><div class="l">Caught only with memory</div><div class="v" id="sOnly">–</div><div class="d">incidents the baseline missed</div></div>
+  </div>
+  <div class="gap"></div>
+  <div class="card"><div class="card-h"><h2>Cumulative accuracy</h2><span class="tagline" id="chartNote">computed from real predictions</span></div><div style="height:300px"><canvas id="chart" aria-label="Cumulative accuracy chart"></canvas></div></div>
+  <div class="gap"></div>
+  <div class="card"><div class="card-h"><h2>Live replay rows</h2><span class="tagline">chronological · newest first</span></div>
+    <div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Deployment</th><th>Actual</th><th style="min-width:230px">With memory</th><th style="min-width:230px">Without memory</th></tr></thead><tbody id="rpRows"></tbody></table></div></div>
+</section>
+
+<!-- INCIDENTS -->
+<section class="view" id="v-incidents">
+  <div class="head"><div><div class="eyebrow">Institutional memory / history</div><h1>Incident history.</h1>
+    <p class="lead">Every outage is a future signal. Search the exact shape of what went wrong.</p></div><button class="btn" data-go="memory">⌕ Browse memory</button></div>
+  <div class="card"><div class="row"><input id="incQ" placeholder="Search title, root cause, service…" style="flex:3;min-width:200px">
+    <select id="incSev" style="flex:1;min-width:130px"><option value="">All severity</option><option>high</option><option>medium</option><option>low</option></select>
+    <select id="incSvc" style="flex:1;min-width:150px"><option value="">All services</option></select></div></div>
+  <div class="gap"></div><div class="grid" id="incList"></div>
+</section>
+
+<!-- INCIDENT DETAIL -->
+<section class="view" id="v-incident">
+  <button class="btn" data-go="incidents">← All incidents</button>
+  <div class="gap"></div><div id="incDetail"></div>
+</section>
+
+<!-- MEMORY -->
+<section class="view" id="v-memory">
+  <div class="head"><div><div class="eyebrow">Hindsight / indexed memory</div><h1>Memory inspector.</h1>
+    <p class="lead">Search the institutional memory as the agent sees it: deployment outcomes, observations, and the lessons from its own mistakes.</p></div><span class="pill acc">● live search</span></div>
+  <div class="grid g21">
+    <div class="card"><div class="row"><input id="memQ" placeholder="Search the memory bank… e.g. Friday checkout, pg-driver" style="flex:3;min-width:200px">
+      <select id="memType" style="flex:1;min-width:150px"><option value="">All memory types</option><option value="world">World facts</option><option value="experience">Experiences</option><option value="observation">Observations</option></select>
+      <button class="btn dark" id="memGo">Search</button></div>
+      <p class="small muted" id="memInfo" style="margin:12px 0 0"></p><div id="memList"></div></div>
+    <div class="grid" style="align-content:start">
+      <div class="card"><div class="card-h"><h2>Lessons learned</h2><span class="tagline" id="lessonCount">0 retained</span></div><div id="lessons"></div></div>
+      <div class="card" style="background:var(--accsoft);border-color:#F1DE8E"><h2>Memory has a point of view.</h2><p class="small muted" style="margin:6px 0 0">Every citation is a breadcrumb from a real outcome. When memory is wrong, the next outcome gives the agent a chance to revise it.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- GUARDRAILS -->
+<section class="view" id="v-guardrails">
+  <div class="head"><div><div class="eyebrow">CI / active protection</div><h1>Guardrails.</h1>
+    <p class="lead">Turn a hard-earned lesson into a rule that stops the next risky wingbeat before production. New rules are retained into Hindsight and applied to every future preflight.</p></div></div>
+  <div class="card"><div class="grid" style="grid-template-columns:3fr 1fr auto;align-items:end">
+    <div><label for="grRule">Rule description</label><input id="grRule" placeholder="Block deploys that bump pg-driver to 3.2.x while PgBouncer runs in transaction mode"></div>
+    <div><label for="grSrc">Source incident ID</label><input id="grSrc" placeholder="INC-139" class="mono"></div>
+    <button class="btn dark" id="grAdd">＋ Save rule</button></div><p class="small" id="grMsg"></p></div>
+  <div class="gap"></div>
+  <div class="card"><div class="card-h"><h2>Active CI guardrails</h2><span class="tagline" id="grCount"></span></div><div id="grList"></div></div>
+</section>
 </main>
+</div>
+</div>
+
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-async function api(path, opts={}) {
-  const r = await fetch(path, {headers:{'Content-Type':'application/json'}, ...opts});
-  const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(data.detail || `HTTP ${r.status}`);
-  return data;
-}
-function banner(msg){ const b=$('#banner'); b.textContent=msg||''; b.style.display=msg?'block':'none'; }
+const pct = v => v == null ? '–' : v + '%';
+const inr = n => n == null ? '–' : '₹' + Number(n).toLocaleString('en-IN');
+const num = n => n == null ? '–' : Number(n).toLocaleString('en-IN');
+const DAYS = ['Mon','Tue','Wed','Thu','Fri'];
+const BUCKETS = [[0,10,'<10'],[10,12,'10–12'],[12,14,'12–14'],[14,16,'14–16'],[16,18,'16–18'],[18,24,'18+']];
+const TITLES = {command:'Command center',preflight:'Preflight',replay:'Learning replay',incidents:'Incidents',incident:'Incident detail',memory:'Memory inspector',guardrails:'Guardrails'};
+let META = {services:[], history:[], dependencies:[]}, REPLAY = {results:[]}, INCIDENTS = [], GUARDS = [], chart, mini, poll, currentId = null;
 
-document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
-  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('active', x===b));
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.id==='tab-'+b.dataset.tab));
-  if (b.dataset.tab==='memory') loadMemory();
-});
+async function api(path, opts = {}) {
+  const r = await fetch(path, {headers:{'Content-Type':'application/json'}, ...opts});
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.detail ? (typeof d.detail === 'string' ? d.detail : JSON.stringify(d.detail)) : `HTTP ${r.status}`);
+  return d;
+}
+function banner(m){ const b = $('#banner'); b.textContent = m || ''; b.style.display = m ? 'block' : 'none'; }
+
+// ---------- routing ----------
+function route(){
+  const h = location.hash.replace(/^#\/?/, '') || 'command';
+  const [view, arg] = h.split('/');
+  const v = TITLES[view] ? view : 'command';
+  document.querySelectorAll('.view').forEach(x => x.classList.toggle('active', x.id === 'v-' + v));
+  document.querySelectorAll('.nav').forEach(n => n.classList.toggle('active', n.dataset.go === (v === 'incident' ? 'incidents' : v)));
+  $('#crumb').textContent = TITLES[v]; window.scrollTo({top:0});
+  if (v === 'incident') openIncident(decodeURIComponent(arg || ''));
+  if (v === 'memory') { loadMemory(); loadLessons(); }
+  if (v === 'guardrails') loadGuards();
+  if (v === 'incidents') renderIncidents();
+}
+document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) { location.hash = '#/' + g.dataset.go; } });
+window.addEventListener('hashchange', route);
 
 // ---------- health ----------
 api('/api/health').then(h => {
+  const hs = h.hindsight_key && !h.hindsight_error;
+  $('#hsDot').className = 'sd ' + (hs ? 'on' : 'off'); $('#hsTxt').textContent = !h.hindsight_key ? 'no key' : h.hindsight_error ? 'unreachable' : 'connected';
+  $('#gqDot').className = 'sd ' + (h.groq_key ? 'on' : 'off'); $('#gqTxt').textContent = h.groq_key ? h.model.split('/').pop() : 'no key';
+  $('#opsTxt').innerHTML = `<span class="sd ${hs && h.groq_key ? 'on' : 'off'}"></span>${hs && h.groq_key ? 'API operational' : 'setup needed'}`;
   const miss = [!h.hindsight_key && 'HINDSIGHT_API_KEY', !h.groq_key && 'GROQ_API_KEY'].filter(Boolean);
-  if (miss.length) banner('Setup needed: add ' + miss.join(' and ') + ' to your .env file, then restart.');
+  if (miss.length) banner('Setup needed: add ' + miss.join(' and ') + ' as environment variables, then restart.');
   else if (h.hindsight_error) banner('Cannot reach Hindsight: ' + h.hindsight_error);
 }).catch(e => banner(e.message));
 
-// ---------- replay ----------
-let chart, polling;
-function pct(v){ return v==null ? '–' : v + '%'; }
-function cumulative(rows, key){ let c=0; return rows.map((r,i)=>{ c+=r[key]?1:0; return Math.round(100*c/(i+1)); }); }
-function renderReplay(d) {
-  const rows = d.results || [];
-  $('#bank').textContent = d.bank_id ? 'Memory bank: ' + d.bank_id : '';
-  $('#bar').style.width = (100*(d.progress||rows.length)/(d.total||24)) + '%';
-  $('#replayStatus').textContent = d.status==='running' ? `Replaying ${rows.length}/${d.total}… each step recalls, predicts twice, then retains the outcome.`
-    : d.status==='error' ? 'Replay stopped: ' + d.error : d.status==='done' ? `Done: ${rows.length} deployments replayed.` : '';
-  $('#startReplay').disabled = d.status==='running';
-  const s = d.summary || {};
-  $('#sMem').textContent = pct(s.memory_accuracy); $('#sBase').textContent = pct(s.baseline_accuracy);
-  $('#sMem2').textContent = pct(s.memory_second_half); $('#sBase2').textContent = pct(s.baseline_second_half);
-  if (rows.length) $('#chartSummary').textContent =
-    `With memory: ${pct(s.memory_accuracy)} overall (${pct(s.memory_first_half)} first half → ${pct(s.memory_second_half)} second half). ` +
-    `Without memory: ${pct(s.baseline_accuracy)} overall (${pct(s.baseline_first_half)} → ${pct(s.baseline_second_half)}). Computed from real predictions.`;
-  const labels = rows.map(r => '#' + r.n);
-  const ds = [
-    {label:'With Hindsight memory', data:cumulative(rows,'memory_correct'), borderColor:'#F35404', backgroundColor:'#F35404', tension:.25, borderWidth:3},
-    {label:'Without memory', data:cumulative(rows,'baseline_correct'), borderColor:'#141414', backgroundColor:'#141414', borderDash:[6,4], tension:.25, borderWidth:2}];
-  if (!chart) chart = new Chart($('#chart'), {type:'line', data:{labels, datasets:ds},
-    options:{animation:{duration:300}, scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}}, plugins:{legend:{position:'bottom'}}}});
-  else { chart.data.labels = labels; chart.data.datasets.forEach((x,i)=>x.data=ds[i].data); chart.update(); }
-  const verdict = p => `<span class="pill ${p.will_fail?'fail':'safe'}">${p.will_fail?'incident':'safe'}</span> <span class="muted small">${Math.round(p.confidence*100)}%</span>`;
-  $('#rows').innerHTML = rows.slice().reverse().map(r => `<tr>
-    <td class="mono">${r.n}</td>
-    <td><div class="row"><span class="dot ${r.failed?'bad':'ok'}"></span><b class="mono">${esc(r.id)}</b><span class="muted small">${esc(r.when.replace('T',' ').slice(0,16))} · ${new Date(r.when).toLocaleDateString('en-IN',{weekday:'short'})}</span></div>
-      <div>${esc(r.summary)}</div><div class="muted small mono">${esc(r.services.join(', '))}</div>
-      ${r.failed?`<div class="small" style="color:#A21C1C">${esc(r.root_cause)}</div>`:''}</td>
-    <td><span class="pill ${r.failed?'fail':'safe'}">${r.failed?'incident':'safe'}</span></td>
-    <td>${verdict(r.with_memory)} <span class="mark ${r.memory_correct?'y':'n'}">${r.memory_correct?'✓':'✗'}</span><div class="small muted">${esc(r.with_memory.reasoning)}</div></td>
-    <td>${verdict(r.without_memory)} <span class="mark ${r.baseline_correct?'y':'n'}">${r.baseline_correct?'✓':'✗'}</span><div class="small muted">${esc(r.without_memory.reasoning)}</div></td></tr>`).join('');
+// ---------- helpers ----------
+const dayIdx = iso => (new Date(iso).getDay() + 6) % 7;
+function allDeploys(){
+  return [...(META.history || []), ...(REPLAY.results || []).map(r => ({id:r.id, when:r.when, services:r.services, summary:r.summary, failed:r.failed}))];
 }
-async function pollReplay(){
-  try { const d = await api('/api/replay'); renderReplay(d); if (d.status==='running') polling=setTimeout(pollReplay, 2500); }
-  catch(e){ banner(e.message); }
+function cumulative(rows, key){ let c = 0; return rows.map((r,i) => { c += r[key] ? 1 : 0; return Math.round(100 * c / (i + 1)); }); }
+function lineChart(canvas, rows, existing, small){
+  if (typeof Chart === 'undefined') return existing;
+  const labels = rows.map(r => '#' + r.n);
+  const ds = [{label:'With Hindsight memory', data:cumulative(rows,'memory_correct'), borderColor:'#E8B400', backgroundColor:'rgba(245,197,24,.15)', fill:true, tension:.3, borderWidth:3, pointRadius:small?0:3},
+              {label:'Without memory', data:cumulative(rows,'baseline_correct'), borderColor:'#6E6A63', borderDash:[6,5], tension:.3, borderWidth:2, pointRadius:small?0:2}];
+  if (existing) { existing.data.labels = labels; existing.data.datasets.forEach((d,i) => d.data = ds[i].data); existing.update(); return existing; }
+  Chart.defaults.font.family = 'Inter'; Chart.defaults.color = '#6E6A63';
+  return new Chart(canvas, {type:'line', data:{labels, datasets:ds}, options:{maintainAspectRatio:false, animation:{duration:400},
+    scales:{y:{min:0,max:100,ticks:{callback:v => v + '%'},grid:{color:'#EFEAE0'}}, x:{grid:{display:false}, ticks:{display:!small}}},
+    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8}}}}});
+}
+
+// ---------- command center ----------
+function renderCommand(){
+  const s = REPLAY.summary || {}, rows = REPLAY.results || [];
+  $('#kMem').textContent = pct(s.memory_accuracy); $('#kBase').textContent = pct(s.baseline_accuracy);
+  $('#kMemD').textContent = rows.length ? `${rows.filter(r=>r.memory_correct).length}/${rows.length} deployments correct` : 'run the replay';
+  $('#kInc').textContent = INCIDENTS.length; $('#kGr').textContent = GUARDS.length;
+  const deps = allDeploys().sort((a,b) => b.when.localeCompare(a.when)).slice(0,7);
+  $('#activity').innerHTML = deps.map(d => { const inc = INCIDENTS.find(i => i.id === d.id); return `<div class="act" ${inc?`data-go="incident/${d.id}"`:''}>
+    <div class="ic"><span class="dot ${d.failed?'bad':'ok'}"></span></div><div style="flex:1;min-width:0">
+    <div class="row" style="gap:7px"><span class="t">${esc(d.id)}</span>${inc?`<span class="pill ${inc.severity}">${inc.severity}</span>`:'<span class="pill safe">safe</span>'}</div>
+    <div class="s">${esc(d.summary)}</div></div><div class="small dim mono" style="text-align:right">${esc(d.when.slice(0,10))}${inc?`<div style="color:var(--red)">${num(inc.failed_requests)} failed req</div>`:''}</div></div>`; }).join('') || '<div class="empty"><b>No deployments yet</b>Run the replay to populate history.</div>';
+  const counts = {}; INCIDENTS.forEach(i => i.services.forEach(s => counts[s] = (counts[s] || 0) + 1));
+  const top = Object.entries(counts).sort((a,b) => b[1]-a[1]); const max = top.length ? top[0][1] : 1;
+  $('#services').innerHTML = top.map(([s,c]) => `<div style="padding:8px 0"><div class="row" style="justify-content:space-between"><span class="mono small">${esc(s)}</span><span class="small dim">${c} incident${c>1?'s':''}</span></div>
+    <div class="bar"><div style="width:${100*c/max}%;background:${c/max>.66?'var(--red)':c/max>.33?'var(--amber)':'var(--acc2)'}"></div></div></div>`).join('') || '<div class="empty">No incidents yet.</div>';
+  const grid = DAYS.map(() => BUCKETS.map(() => ({n:0,f:0})));
+  allDeploys().forEach(d => { const di = dayIdx(d.when); if (di > 4) return; const h = new Date(d.when).getHours(); const bi = BUCKETS.findIndex(([a,b]) => h >= a && h < b); grid[di][bi].n++; if (d.failed) grid[di][bi].f++; });
+  let html = '<div></div>' + BUCKETS.map(b => `<div class="h">${b[2]}</div>`).join('');
+  grid.forEach((r,di) => { html += `<div class="d">${DAYS[di]}</div>` + r.map(c => { if (!c.n) return '<div class="cell"></div>'; const x = c.f / c.n;
+    return `<div class="cell" title="${c.f} incidents / ${c.n} deploys" style="background:rgba(217,59,59,${(0.1 + x*0.75).toFixed(2)});color:${x>.5?'#fff':'#161B21'}">${c.f}/${c.n}</div>`; }).join(''); });
+  $('#heat').innerHTML = html;
+  mini = lineChart($('#miniChart'), rows, mini, true);
+}
+
+// ---------- replay ----------
+function renderReplay(){
+  const d = REPLAY, rows = d.results || [], s = d.summary || {};
+  $('#bankTxt').textContent = d.bank_id || 'no memory bank yet';
+  const p = Math.round(100 * rows.length / (d.total || 24)); $('#rpPct').textContent = p + '%'; $('#rpBar').style.width = p + '%';
+  $('#rpStatus').textContent = d.status === 'running' ? `Replaying ${rows.length}/${d.total}: recall → predict twice → retain outcome` : d.status === 'error' ? 'Stopped: ' + d.error : d.status === 'done' ? `Complete · ${rows.length} deployments` : 'Not started';
+  $('#startReplay').disabled = d.status === 'running';
+  const mc = rows.filter(r => r.memory_correct).length, bc = rows.filter(r => r.baseline_correct).length;
+  $('#sMem').textContent = pct(s.memory_accuracy); $('#sMemN').textContent = rows.length ? `${mc}/${rows.length} correct` : '';
+  $('#sBase').textContent = pct(s.baseline_accuracy); $('#sBaseN').textContent = rows.length ? `${bc}/${rows.length} correct` : '';
+  $('#sAdv').textContent = s.memory_accuracy == null ? '–' : (s.memory_accuracy - s.baseline_accuracy > 0 ? '+' : '') + (s.memory_accuracy - s.baseline_accuracy);
+  $('#sOnly').textContent = rows.length ? rows.filter(r => r.failed && r.memory_correct && !r.baseline_correct).length : '–';
+  chart = lineChart($('#chart'), rows, chart, false);
+  const vp = p => `<span class="pill ${p.will_fail?'fail':'safe'}">${p.will_fail?'incident':'safe'}</span> <span class="small dim">${Math.round(p.confidence*100)}%</span>`;
+  $('#rpRows').innerHTML = rows.slice().reverse().map(r => `<tr><td class="mono dim">${r.n}</td>
+    <td><div class="row" style="gap:7px"><span class="dot ${r.failed?'bad':'ok'}"></span><b class="mono">${esc(r.id)}</b><span class="small dim mono">${new Date(r.when).toLocaleDateString('en-IN',{weekday:'short'})} ${esc(r.when.slice(0,16).replace('T',' '))}</span></div>
+      <div>${esc(r.summary)}</div><div class="small dim mono">${esc(r.services.join(', '))}</div></td>
+    <td><span class="pill ${r.failed?'fail':'safe'}">${r.failed?'incident':'safe'}</span></td>
+    <td>${vp(r.with_memory)} <span class="${r.memory_correct?'okm':'nom'}">${r.memory_correct?'✓':'✗'}</span><div class="small muted">${esc(r.with_memory.reasoning)}</div></td>
+    <td>${vp(r.without_memory)} <span class="${r.baseline_correct?'okm':'nom'}">${r.baseline_correct?'✓':'✗'}</span><div class="small muted">${esc(r.without_memory.reasoning)}</div></td></tr>`).join('')
+    || '<tr><td colspan="5"><div class="empty"><b>No replay in motion</b>Start the replay to run the agent through the historical deployment bank.</div></td></tr>';
 }
 $('#startReplay').onclick = async () => {
-  if (!confirm('Start a fresh replay? This creates a new memory bank and takes a few minutes.')) return;
-  try { await api('/api/replay/start', {method:'POST'}); banner(''); clearTimeout(polling); pollReplay(); } catch(e){ banner(e.message); }
+  if (!confirm('Start a fresh replay? It creates a new memory bank, replaces the current results, and takes about 10 minutes.')) return;
+  try { await api('/api/replay/start', {method:'POST'}); banner(''); refresh(); } catch(e){ banner(e.message); }
 };
-pollReplay();
+
+// ---------- incidents ----------
+function renderIncidents(){
+  const q = $('#incQ').value.toLowerCase().trim(), sev = $('#incSev').value, svc = $('#incSvc').value;
+  const list = INCIDENTS.filter(i => (!sev || i.severity === sev) && (!svc || i.services.includes(svc)) &&
+    (!q || [i.id, i.title, i.summary, i.root_cause, i.services.join(' ')].join(' ').toLowerCase().includes(q)));
+  $('#incList').innerHTML = list.map(i => `<div class="inc" data-go="incident/${esc(i.id)}"><span class="dot bad" style="margin-top:6px"></span><div style="flex:1;min-width:0">
+    <div class="row" style="gap:8px"><b class="mono">${esc(i.id)}</b><span class="pill ${i.severity}">${i.severity}</span><span class="pill">${i.fix_type}</span><span class="small dim mono">${new Date(i.when).toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short'})} ${esc(i.when.slice(11,16))}</span></div>
+    <div style="font:600 15px var(--disp);margin-top:4px">${esc(i.title)}</div><div class="small muted">${esc(i.root_cause)}</div>
+    <div class="row" style="margin-top:6px;gap:6px">${i.services.map(s => `<span class="pill mono">${esc(s)}</span>`).join('')}</div></div>
+    <div style="text-align:right;min-width:120px">${i.failed_requests==null?'<div class="small dim">impact not recorded</div>':`<div style="font:700 18px var(--disp)">${inr(i.amount_inr)}</div><div class="small dim">${num(i.failed_requests)} failed req · ${num(i.downtime_min)}m</div>`}</div></div>`).join('')
+    || '<div class="empty"><b>No incidents match</b>Try a different search or filter.</div>';
+}
+['#incQ','#incSev','#incSvc'].forEach(s => $(s).addEventListener('input', renderIncidents));
+async function openIncident(id){
+  $('#incDetail').innerHTML = '<div class="empty">Loading incident and recalling similar memories…</div>';
+  try { const i = await api('/api/incidents/' + encodeURIComponent(id));
+    $('#incDetail').innerHTML = `<div class="head"><div><div class="eyebrow">${esc(i.id)} · ${esc(i.when.replace('T',' ').slice(0,16))} IST</div><h1>${esc(i.title)}</h1><p class="lead">${esc(i.summary)}</p></div>
+      <div class="row"><span class="pill ${i.severity}">${i.severity} severity</span><span class="pill">${i.fix_type} fix</span></div></div>
+    <div class="grid g21"><div class="card"><div class="card-h"><h2>Butterfly trail</h2><span class="tagline">how the failure moved</span></div>
+      <div class="trail">${(i.trail||[]).map((t,k) => `<div class="step"><span class="n">${String(k+1).padStart(2,'0')}</span><div style="padding-top:3px">${esc(t)}</div></div>`).join('')}</div></div>
+      <div class="card"><div class="card-h"><h2>Impact</h2><span class="tagline">${esc(i.when.slice(0,10))}</span></div>
+      <div class="blast"><div><b>${num(i.failed_requests)}</b><span>failed req</span></div><div><b>${inr(i.amount_inr)}</b><span>amount</span></div><div><b>${num(i.downtime_min)}m</b><span>downtime</span></div></div></div></div>
+    <div class="gap"></div>
+    <div class="grid g21"><div class="card"><div class="card-h"><h2>Root cause & resolution</h2><span class="tagline">${esc(i.fix_type)}</span></div>
+      <div class="grid g2"><div><div class="tagline">Root cause</div><p style="margin:6px 0 0">${esc(i.root_cause)}</p></div><div><div class="tagline">Resolution</div><p style="margin:6px 0 0">${esc(i.resolution || '—')}</p></div></div></div>
+      <div class="card"><div class="card-h"><h2>Dependencies</h2><span class="tagline">${(i.dependencies||[]).length} edges</span></div>
+      ${(i.dependencies||[]).map(d => `<div class="dep"><span class="pill mono">${esc(d.from)}</span><span class="dim">→</span><span class="pill mono">${esc(d.to)}</span><span class="small dim">${esc(d.kind)}</span></div>`).join('')}</div></div>
+    <div class="gap"></div>
+    <div class="card"><div class="card-h"><h2>Similar memories</h2><span class="tagline">retrieved from Hindsight</span></div>
+      ${(i.similar||[]).map(m => `<div class="mem"><div class="row" style="gap:7px"><span class="pill mono">${esc(m.type)}</span><span class="small dim mono">${esc(m.when)}</span></div><div style="margin-top:5px">${esc(m.text)}</div></div>`).join('') || `<div class="empty">${i.similar_error ? 'Could not reach Hindsight: ' + esc(i.similar_error) : 'No similar memories yet.'}</div>`}</div>`;
+  } catch(e){ $('#incDetail').innerHTML = `<div class="empty"><b>Could not load ${esc(id)}</b>${esc(e.message)}</div>`; }
+}
 
 // ---------- preflight ----------
-let services = [], selected = new Set(['checkout-service']), currentId = null;
-const examples = [
-  {svcs:['db-config','payment-api'], text:'Increase DB connection pool to 150 and ship payment-api retry backoff changes together', when:'2026-10-06T14:00'},
-  {svcs:['inventory-service'], text:'2,000-line rewrite of stock sync logic behind feature flag inv-sync-v3, dark launch', when:'2026-10-07T11:00'}];
-api('/api/meta').then(m => { services = m.services; drawChips(); });
-function drawChips(){ $('#svcs').innerHTML = services.map(s=>`<button type="button" class="chip ${selected.has(s)?'on':''}" aria-pressed="${selected.has(s)}" data-s="${s}">${s}</button>`).join('');
-  document.querySelectorAll('.chip').forEach(c => c.onclick = () => { selected.has(c.dataset.s)?selected.delete(c.dataset.s):selected.add(c.dataset.s); drawChips(); }); }
-document.querySelectorAll('[data-example]').forEach(b => b.onclick = () => { const e = examples[b.dataset.example];
-  selected = new Set(e.svcs); drawChips(); $('#summary').value = e.text; $('#when').value = e.when; });
-function verdictBlock(title, p){ return `<div style="margin-top:14px"><div class="muted small">${title}</div>
-  <div class="row" style="margin:6px 0"><span class="big" style="color:${p.will_fail?'var(--orange)':'var(--green)'}">${p.will_fail?'Incident likely':'Looks safe'}</span></div>
-  <div class="row"><span class="pill ${p.risk}">${esc(p.risk)} risk</span><span class="muted small">confidence ${Math.round(p.confidence*100)}%</span>
-  ${(p.cited||[]).map(c=>`<span class="pill mono">${esc(c)}</span>`).join('')}</div><p>${esc(p.reasoning)}</p></div>`; }
-$('#runPreflight').onclick = async () => {
-  if (!selected.size) return banner('Pick at least one service.');
-  const b = $('#runPreflight'); b.disabled = true; b.textContent = 'Searching memory…';
-  try {
-    const r = await api('/api/preflight', {method:'POST', body:JSON.stringify({services:[...selected], summary:$('#summary').value, when:$('#when').value+':00'})});
+let sel = new Set(['checkout-service']);
+const EX = [
+  {v:'release/2026.10.06', s:['db-config','payment-api'], t:'Increase DB connection pool to 150 and ship payment-api retry backoff changes together', d:'- max_pool_size: 50\n+ max_pool_size: 150', w:'2026-10-06T14:00'},
+  {v:'release/2026.10.07', s:['inventory-service'], t:'2,000-line rewrite of stock sync logic behind feature flag inv-sync-v3, dark launch', d:'+ if flags.enabled("inv-sync-v3"):', w:'2026-10-07T11:00'},
+  {v:'hotfix/2026.10.09', s:['checkout-service'], t:'Hotfix: handle empty coupon code in checkout validation', d:'+ if not coupon: return None', w:'2026-10-09T17:45'}];
+function drawChips(){ $('#svcs').innerHTML = META.services.map(s => `<button type="button" class="chip ${sel.has(s)?'on':''}" aria-pressed="${sel.has(s)}" data-s="${s}">${s}</button>`).join('');
+  document.querySelectorAll('#svcs .chip').forEach(c => c.onclick = () => { sel.has(c.dataset.s) ? sel.delete(c.dataset.s) : sel.add(c.dataset.s); drawChips(); }); }
+document.querySelectorAll('[data-ex]').forEach(b => b.onclick = () => { const e = EX[b.dataset.ex]; sel = new Set(e.s); drawChips();
+  $('#pfVersion').value = e.v; $('#pfSummary').value = e.t; $('#pfDiff').value = e.d; $('#pfWhen').value = e.w; });
+function verdict(title, p, mem){ const c = Math.round(p.confidence*100);
+  return `<div class="verdict ${mem?'vmem':''}"><div class="tagline">${title}</div><div class="big ${p.will_fail?'bad':'good'}">${p.will_fail?'Incident likely':'Looks safe'}</div>
+  <div class="row" style="gap:6px"><span class="pill ${esc(p.risk)}">${esc(p.risk)} risk</span><span class="small muted">confidence ${c}%</span>${(p.cited||[]).map(x => `<a class="pill mono" href="#/incident/${encodeURIComponent(x)}">${esc(x)}</a>`).join('')}</div>
+  <div class="meter"><div style="width:${c}%;background:${p.will_fail?'var(--red)':'var(--green)'}"></div></div><div class="small">${esc(p.reasoning)}</div></div>`; }
+$('#runPf').onclick = async () => {
+  if (!sel.size) return banner('Pick at least one service.');
+  const b = $('#runPf'); b.disabled = true; b.textContent = 'Searching memory…';
+  try { const r = await api('/api/preflight', {method:'POST', body:JSON.stringify({services:[...sel], summary:$('#pfSummary').value, when:$('#pfWhen').value + ':00', version:$('#pfVersion').value, diff:$('#pfDiff').value})});
     currentId = r.deployment.id; banner('');
-    $('#riskCard').innerHTML = `<h2>Risk verdict <span class="mono muted small">${esc(currentId)}</span></h2>` +
-      verdictBlock('With Hindsight memory', r.with_memory) + '<hr style="border:0;border-top:1px solid var(--line)">' + verdictBlock('Without memory (same LLM)', r.without_memory);
-    $('#recalled').innerHTML = (r.recalled||[]).map(m=>`<div class="mem"><span class="pill mono">${esc(m.type)}</span> <span class="muted small">${esc(m.when)}</span><div class="small">${esc(m.text)}</div></div>`).join('') || '<p class="muted">Nothing relevant in memory.</p>';
-    $('#afterPreflight').style.display = 'grid'; $('#answer').innerHTML=''; $('#outcomeMsg').textContent='';
-  } catch(e){ banner(e.message); } finally { b.disabled=false; b.textContent='Run preflight'; }
+    const br = r.blast_radius;
+    $('#pfResult').innerHTML = `<div class="card-h"><h2>Risk verdict</h2><span class="tagline mono">${esc(currentId)} · ${esc(r.deployment.version)}</span></div>`
+      + verdict('With Hindsight memory', r.with_memory, true)
+      + (br ? `<div style="margin-top:12px"><div class="tagline">Blast radius · based on ${esc(br.based_on)}</div><div class="blast"><div><b>${num(br.failed_requests)}</b><span>failed req</span></div><div><b>${inr(br.amount_inr)}</b><span>at risk</span></div><div><b>${num(br.downtime_min)}m</b><span>downtime</span></div></div></div>` : '')
+      + '<div style="height:12px"></div>' + verdict('Without memory · same LLM', r.without_memory, false);
+    $('#recalled').innerHTML = (r.recalled || []).map(m => `<div class="mem"><div class="row" style="gap:7px"><span class="pill mono">${esc(m.type)}</span><span class="small dim mono">${esc(m.when)}</span></div><div style="margin-top:5px">${esc(m.text)}</div></div>`).join('') || '<div class="empty">Nothing relevant in memory.</div>';
+    $('#pfAfter').style.display = 'grid'; $('#answer').innerHTML = ''; $('#outMsg').textContent = '';
+  } catch(e){ banner('The preflight could not complete: ' + e.message); } finally { b.disabled = false; b.textContent = '⚡ Run risk assessment'; }
 };
-$('#askBtn').onclick = async () => {
-  const b=$('#askBtn'); b.disabled=true; $('#answer').innerHTML='<p class="muted">Reflecting over memory…</p>';
+$('#askBtn').onclick = async () => { const b = $('#askBtn'); b.disabled = true; $('#answer').innerHTML = '<div class="answer muted">Reflecting over memory…</div>';
   try { const r = await api('/api/ask', {method:'POST', body:JSON.stringify({question:$('#question').value, preflight_id:currentId})});
-    $('#answer').innerHTML = `<div class="card" style="background:#FFFBF4"><div style="white-space:pre-wrap">${esc(r.text)}</div><div class="muted small" style="margin-top:8px">Based on ${r.memories_used} memories</div></div>`;
-  } catch(e){ $('#answer').innerHTML=''; banner(e.message);} finally{ b.disabled=false; }
-};
-document.querySelectorAll('[data-outcome]').forEach(b => b.onclick = async () => {
-  try { const r = await api('/api/outcome', {method:'POST', body:JSON.stringify({preflight_id:currentId, failed:b.dataset.outcome==='true', root_cause:$('#rootCause').value})});
-    $('#outcomeMsg').innerHTML = '<b>Lesson retained.</b> ' + esc(r.retained);
-  } catch(e){ banner(e.message); }
-});
+    $('#answer').innerHTML = `<div class="answer">${esc(r.text)}<div class="small dim" style="margin-top:8px">Based on ${r.memories_used} memories</div></div>`;
+  } catch(e){ $('#answer').innerHTML = ''; banner(e.message); } finally { b.disabled = false; } };
+document.querySelectorAll('[data-out]').forEach(b => b.onclick = async () => { if (!currentId) return;
+  try { const r = await api('/api/outcome', {method:'POST', body:JSON.stringify({preflight_id:currentId, failed:b.dataset.out === 'true', root_cause:$('#rootCause').value})});
+    $('#outMsg').innerHTML = '<b style="color:var(--green)">Lesson retained into Hindsight.</b> <span class="muted">' + esc(r.retained) + '</span>'; loadIncidents();
+  } catch(e){ banner(e.message); } });
 
 // ---------- memory ----------
-async function loadMemory(q){
-  $('#memInfo').textContent = q ? 'Recalling…' : 'Loading…';
-  try { const r = await api('/api/memory' + (q ? '?q=' + encodeURIComponent(q) : ''));
-    $('#memInfo').textContent = r.bank_id ? `${q?'Recall results':'Memories'} in ${r.bank_id}: ${r.total}` : 'No memory bank yet. Run the replay or a preflight first.';
-    $('#memList').innerHTML = (r.items||[]).map(m=>`<div class="mem"><span class="pill mono">${esc(m.type)}</span> <span class="muted small">${esc(m.when)} ${esc(m.context||'')}</span><div>${esc(m.text)}</div></div>`).join('');
-  } catch(e){ $('#memInfo').textContent=''; banner(e.message); }
+async function loadMemory(){
+  const q = $('#memQ').value.trim(), t = $('#memType').value; $('#memInfo').textContent = q ? 'Recalling…' : 'Loading…';
+  try { const r = await api('/api/memory?' + new URLSearchParams(q ? {q} : (t ? {type:t} : {})));
+    $('#memInfo').textContent = r.bank_id ? `${q ? 'Recall results' : 'Memories'} in ${r.bank_id}: ${r.total}` : 'No memory bank yet.';
+    $('#memList').innerHTML = (r.items || []).map(m => `<div class="mem"><div class="row" style="gap:7px"><span class="pill mono">${esc(m.type)}</span><span class="small dim mono">${esc(m.when)} ${esc(m.context || '')}</span></div><div style="margin-top:5px">${esc(m.text)}</div></div>`).join('')
+      || '<div class="empty"><b>Memory bank is quiet</b>No memories match this lens yet.</div>';
+  } catch(e){ $('#memInfo').textContent = ''; banner(e.message); }
 }
-$('#memSearch').onclick = () => loadMemory($('#memQ').value.trim());
-$('#memAll').onclick = () => loadMemory();
+async function loadLessons(){
+  try { const r = await api('/api/lessons'); $('#lessonCount').textContent = r.items.length + ' retained';
+    $('#lessons').innerHTML = r.items.slice(0,8).map(l => `<div class="mem"><div class="row" style="gap:7px"><b class="mono small">${esc(l.id)}</b><span class="small dim mono">${esc(l.when.slice(0,10))}</span></div><div class="small muted">${esc(l.summary)}</div><div class="small" style="margin-top:3px">${esc(l.lesson)}</div></div>`).join('')
+      || '<div class="empty"><b>No lessons retained</b>Close the loop on a preflight to create the first one.</div>';
+  } catch(e){}
+}
+$('#memGo').onclick = loadMemory; $('#memType').onchange = () => { $('#memQ').value = ''; loadMemory(); };
+$('#memQ').onkeydown = e => { if (e.key === 'Enter') loadMemory(); };
+
+// ---------- guardrails ----------
+async function loadGuards(){
+  try { GUARDS = (await api('/api/guardrails')).items; } catch(e){ return banner(e.message); }
+  $('#grCount').textContent = GUARDS.length + ' enforced'; $('#kGr').textContent = GUARDS.length;
+  $('#grList').innerHTML = GUARDS.slice().reverse().map(g => `<div class="guard"><span class="shield">✓</span><div style="flex:1"><div>${esc(g.rule)}</div><div class="small dim">${esc(g.id)} · added ${esc(g.added)}${g.source ? ` · from <a href="#/incident/${encodeURIComponent(g.source)}" class="mono" style="text-decoration:underline">${esc(g.source)}</a>` : ''}</div></div><span class="pill safe">enforced</span></div>`).join('');
+}
+$('#grAdd').onclick = async () => { const rule = $('#grRule').value.trim(); if (rule.length < 5) return banner('Describe the rule (at least 5 characters).');
+  const b = $('#grAdd'); b.disabled = true;
+  try { const g = await api('/api/guardrails', {method:'POST', body:JSON.stringify({rule, source:$('#grSrc').value.trim()})});
+    $('#grMsg').innerHTML = `<b style="color:var(--green)">${esc(g.id)} saved and retained into Hindsight.</b> Future preflights will apply it.`; $('#grRule').value = ''; $('#grSrc').value = ''; loadGuards();
+  } catch(e){ banner(e.message); } finally { b.disabled = false; } };
+
+// ---------- boot ----------
+async function loadIncidents(){ try { INCIDENTS = (await api('/api/incidents')).items; } catch(e){ INCIDENTS = []; }
+  const svcs = [...new Set(INCIDENTS.flatMap(i => i.services))].sort();
+  const cur = $('#incSvc').value; $('#incSvc').innerHTML = '<option value="">All services</option>' + svcs.map(s => `<option ${s===cur?'selected':''}>${s}</option>`).join('');
+  renderIncidents(); renderCommand(); }
+async function refresh(){
+  try { REPLAY = await api('/api/replay'); } catch(e){ return banner(e.message); }
+  await loadIncidents(); renderReplay(); renderCommand();
+  clearTimeout(poll); if (REPLAY.status === 'running') poll = setTimeout(refresh, 3000);
+}
+api('/api/meta').then(async m => { META = m; drawChips(); await loadGuards(); await refresh(); route(); }).catch(e => banner(e.message));
 </script>
 </body>
 </html>
