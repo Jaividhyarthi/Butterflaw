@@ -2,9 +2,57 @@
 
 **Every outage starts with a wing flap.**
 
-Butterflaw is a DevOps agent that predicts whether a deployment will break production, using a memory of every past deployment your team has shipped. It remembers which changes caused incidents, why they failed, and where its own predictions went wrong. Its predictions get measurably better as that memory grows.
+Butterflaw is a DevOps agent that predicts whether a deployment will break production, using a memory of every past deployment your team has shipped. It remembers which changes caused incidents, why they failed, and where its own predictions went wrong. The memory layer is [Hindsight](https://github.com/vectorize-io/hindsight) by Vectorize.
 
-The memory layer is [Hindsight](https://github.com/vectorize-io/hindsight) by Vectorize.
+| | |
+|---|---|
+| 🌐 **Live demo** | DEPLOYED-LINK-PLACEHOLDER |
+| 🎥 **Demo video** | YOUTUBE-LINK-PLACEHOLDER |
+| 📝 **Article** | [I Gave My Deploy Pipeline Hindsight Memory. Outages Stopped Repeating.](https://dev.to/jaividhyarthi/i-gave-my-deploy-pipeline-hindsight-memory-outages-stopped-repeating-4956) |
+| 💼 **LinkedIn** | [Post](https://www.linkedin.com/posts/jaividhyarthivivekanand_aiagents-agentmemory-hindsight-share-7510749692083785728-SEXS/) |
+| 💬 **Reddit** | [r/SideProject discussion](https://www.reddit.com/r/SideProject/comments/1wtg97d/i_gave_my_deploy_agent_a_memory_same_llm_1724/) |
+| 📁 **Extra material (slides, literature review)** | DRIVE-LINK-PLACEHOLDER |
+
+## Results
+
+Same LLM (`openai/gpt-oss-120b` on Groq), same prompt, 24 deployments replayed in order. Each agent predicts **before** seeing the outcome.
+
+| Agent | Correct | Accuracy |
+|---|---|---|
+| **With Hindsight memory** | **17 / 24** | **71%** |
+| Without memory | 11 / 24 | 46% |
+
+Wherever the two agents disagreed, the memory agent was the one that was right. It caught 6 incidents the baseline called safe (INC-142, INC-143, INC-147, INC-152, INC-156, INC-163). **The honest limit:** on two Friday-evening deploys, memory recalled the right incidents but the model argued itself out of them, and a novel `orjson` failure was missed by both. Recall is not the same as judgment.
+
+## Architecture
+
+![System architecture](docs/architecture/1_system_architecture.png)
+
+<details>
+<summary><b>Preflight flow: "Seen this before?"</b></summary>
+
+![Preflight flow](docs/architecture/2_preflight_flow.png)
+</details>
+
+<details>
+<summary><b>The learning loop (replay)</b></summary>
+
+![Learning loop](docs/architecture/3_learning_loop.png)
+</details>
+
+<details>
+<summary><b>Ask why + recording outcomes</b></summary>
+
+![Ask why and outcome](docs/architecture/4_ask_why_and_outcome.png)
+</details>
+
+<details>
+<summary><b>What one memory looks like</b></summary>
+
+![Memory record](docs/architecture/5_memory_record.png)
+</details>
+
+Interactive version of all diagrams: [`docs/architecture/butterflaw_architecture.html`](docs/architecture/butterflaw_architecture.html) (download and open in a browser).
 
 ## The problem
 
@@ -63,8 +111,8 @@ All accuracy numbers are computed from the actual predictions made during the ru
 ## Run it
 
 ```bash
-git clone https://github.com/Jaividhyarthi/butterflaw.git
-cd butterflaw
+git clone https://github.com/Jaividhyarthi/Butterflaw.git
+cd Butterflaw
 cp .env.example .env        # add your HINDSIGHT_API_KEY and GROQ_API_KEY
 pip install -r requirements.txt
 uvicorn app.main:app --host 0.0.0.0 --port 8000
@@ -84,6 +132,7 @@ Then:
 ## Project structure
 
 ```
+docs/architecture/   architecture and flow diagrams (PNG + HTML)
 app/
   main.py      FastAPI routes
   agent.py     prediction, replay, learning loop

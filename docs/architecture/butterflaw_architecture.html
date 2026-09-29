@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Butterflaw Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7F3EA;--ink:#141414;--muted:#6B6560;--o:#F35404;--line:#141414}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,sans-serif}
+main{max-width:1200px;margin:0 auto;padding:32px 16px 80px}
+h1{font:700 40px "Space Grotesk";margin:0 0 6px;letter-spacing:-1px}
+h2{font:700 26px "Space Grotesk";margin:48px 0 6px}
+p.sub{color:var(--muted);margin:0 0 18px;max-width:820px}
+.card{background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:16px;padding:18px;overflow-x:auto}
+svg{display:block;width:100%;min-width:900px;height:auto}
+svg text{font-family:Inter,sans-serif;fill:#141414}
+.t{font:700 15px "Space Grotesk"}.s{font-size:12.5px;fill:#5a544f}.m{font:12px "JetBrains Mono"}
+.tag{font:700 11px "JetBrains Mono";letter-spacing:.5px}
+</style>
+</head>
+<body>
+<main>
+<h1>Butterflaw 🦋 architecture</h1>
+<p class="sub">A DevOps agent that predicts whether a deployment will break production, using Hindsight memory of every past deployment, root cause, and its own wrong predictions. Five diagrams: system architecture, preflight flow, learning loop, "Ask why" flow, and what a memory looks like.</p>
+
+<!-- 1. SYSTEM ARCHITECTURE -->
+<h2>1. System architecture</h2>
+<p class="sub">Three layers: a single-page UI, a FastAPI backend holding the agent logic, and two external services. Hindsight is the only long-term memory; there is no local vector store or embedding code.</p>
+<div class="card">
+<svg viewBox="0 0 1160 700" role="img" aria-label="System architecture diagram">
+<defs>
+<marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#141414"/></marker>
+<marker id="ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#F35404"/></marker>
+</defs>
+<!-- Layer labels -->
+<text x="20" y="34" class="tag" fill="#6B6560">LAYER 1 · BROWSER</text>
+<text x="20" y="214" class="tag" fill="#6B6560">LAYER 2 · FASTAPI BACKEND (Python)</text>
+<text x="20" y="534" class="tag" fill="#6B6560">LAYER 3 · EXTERNAL SERVICES</text>
+
+<!-- UI -->
+<rect x="20" y="46" width="1120" height="120" rx="14" fill="#fff" stroke="#141414"/>
+<text x="40" y="74" class="t">Single-page UI · app/static/index.html (vanilla JS + Chart.js)</text>
+<rect x="40" y="88" width="340" height="62" rx="10" fill="#FFF1E8" stroke="#F35404"/>
+<text x="56" y="112" class="t">Learning curve tab</text><text x="56" y="134" class="s">Run replay · accuracy chart · per-deploy table</text>
+<rect x="400" y="88" width="340" height="62" rx="10" fill="#FFF1E8" stroke="#F35404"/>
+<text x="416" y="112" class="t">Preflight tab</text><text x="416" y="134" class="s">Risk verdicts · recalled memories · Ask why · outcome</text>
+<rect x="760" y="88" width="360" height="62" rx="10" fill="#FFF1E8" stroke="#F35404"/>
+<text x="776" y="112" class="t">Memory tab</text><text x="776" y="134" class="s">Search (recall) · list all memories in the bank</text>
+
+<!-- arrows UI -> API -->
+<line x1="580" y1="166" x2="580" y2="226" stroke="#141414" stroke-width="2" marker-end="url(#a)"/>
+<text x="592" y="200" class="m">JSON over HTTP (fetch)</text>
+
+<!-- Backend box -->
+<rect x="20" y="226" width="1120" height="284" rx="14" fill="#fff" stroke="#141414"/>
+<!-- main.py -->
+<rect x="40" y="246" width="1080" height="64" rx="10" fill="#F7F3EA" stroke="#141414"/>
+<text x="56" y="270" class="t">app/main.py · API routes</text>
+<text x="56" y="292" class="m">GET /api/health · GET /api/replay · POST /api/replay/start · POST /api/preflight · POST /api/outcome · POST /api/ask · GET /api/memory</text>
+
+<!-- agent.py -->
+<rect x="40" y="330" width="520" height="160" rx="10" fill="#141414"/>
+<text x="58" y="356" class="t" style="fill:#fff">app/agent.py · the agent</text>
+<text x="58" y="380" class="s" style="fill:#e8e2d6">predict(): recall → judge WITH memory + judge WITHOUT</text>
+<text x="58" y="400" class="s" style="fill:#e8e2d6">retain_outcome(): outcome + root cause + self-review lesson</text>
+<text x="58" y="420" class="s" style="fill:#e8e2d6">start_replay(): background thread, 24 deploys in order</text>
+<text x="58" y="440" class="s" style="fill:#e8e2d6">preflight() · record_outcome() · ask()</text>
+<text x="58" y="460" class="s" style="fill:#e8e2d6">replay_summary(): accuracy computed from real predictions</text>
+
+<!-- memory.py -->
+<rect x="580" y="330" width="260" height="76" rx="10" fill="#FFF1E8" stroke="#F35404"/>
+<text x="596" y="356" class="t">app/memory.py</text>
+<text x="596" y="378" class="s">Hindsight wrapper</text>
+<text x="596" y="396" class="m">retain·recall·reflect·list</text>
+<!-- llm.py -->
+<rect x="860" y="330" width="260" height="76" rx="10" fill="#F7F3EA" stroke="#141414"/>
+<text x="876" y="356" class="t">app/llm.py</text>
+<text x="876" y="378" class="s">Groq client · JSON parse</text>
+<text x="876" y="396" class="s">retries · 429 backoff</text>
+<!-- data.py + state -->
+<rect x="580" y="420" width="260" height="70" rx="10" fill="#F7F3EA" stroke="#141414"/>
+<text x="596" y="446" class="t">app/data.py</text>
+<text x="596" y="468" class="s">5 history deploys + 24 replay deploys</text>
+<rect x="860" y="420" width="260" height="70" rx="10" fill="#F7F3EA" stroke="#141414"/>
+<text x="876" y="446" class="t">data/state.json</text>
+<text x="876" y="468" class="s">bank id · replay results · preflights</text>
+
+<!-- routes -> agent -->
+<line x1="300" y1="310" x2="300" y2="330" stroke="#141414" stroke-width="2" marker-end="url(#a)"/>
+<!-- agent -> memory, llm -->
+<line x1="560" y1="368" x2="580" y2="368" stroke="#F35404" stroke-width="2" marker-end="url(#ao)"/>
+<path d="M560 350 H570 V320 H990 V330" fill="none" stroke="#141414" stroke-width="2" marker-end="url(#a)"/>
+<line x1="560" y1="455" x2="580" y2="455" stroke="#141414" stroke-width="2" marker-end="url(#a)"/>
+
+<!-- external -->
+<rect x="20" y="546" width="740" height="140" rx="14" fill="#FFF1E8" stroke="#F35404" stroke-width="2"/>
+<text x="40" y="574" class="t">Hindsight Cloud (Vectorize) · the agent's long-term memory</text>
+<text x="40" y="596" class="m">memory bank: butterflaw-&lt;timestamp&gt; · mission set on create_bank</text>
+<rect x="40" y="610" width="160" height="60" rx="8" fill="#fff" stroke="#F35404"/><text x="54" y="634" class="t">retain()</text><text x="54" y="654" class="s">LLM fact extraction</text>
+<rect x="212" y="610" width="250" height="60" rx="8" fill="#fff" stroke="#F35404"/><text x="226" y="634" class="t">recall() · TEMPR</text><text x="226" y="654" class="s">semantic · keyword · graph · temporal</text>
+<rect x="474" y="610" width="130" height="60" rx="8" fill="#fff" stroke="#F35404"/><text x="488" y="634" class="t">reflect()</text><text x="488" y="654" class="s">agentic reasoning</text>
+<rect x="616" y="610" width="130" height="60" rx="8" fill="#fff" stroke="#F35404"/><text x="630" y="634" class="t">observations</text><text x="630" y="654" class="s">auto-consolidated</text>
+
+<rect x="780" y="546" width="360" height="140" rx="14" fill="#fff" stroke="#141414" stroke-width="2"/>
+<text x="800" y="574" class="t">Groq · LLM judge</text>
+<text x="800" y="598" class="m">openai/gpt-oss-120b</text>
+<text x="800" y="624" class="s">Same model + same prompt for both agents.</text>
+<text x="800" y="644" class="s">Only difference: recalled history is included</text>
+<text x="800" y="664" class="s">or replaced by "(no team history available)".</text>
+
+<line x1="710" y1="406" x2="390" y2="546" stroke="#F35404" stroke-width="2" marker-end="url(#ao)"/>
+<text x="470" y="520" class="m" fill="#F35404">HTTPS · API key</text>
+<line x1="990" y1="406" x2="960" y2="546" stroke="#141414" stroke-width="2" marker-end="url(#a)"/>
+<text x="985" y="520" class="m">HTTPS · API key</text>
+</svg>
+</div>
+
+<!-- 2. PREFLIGHT FLOW -->
+<h2>2. Preflight flow: "Seen this before?"</h2>
+<p class="sub">What happens when an engineer describes a deployment before shipping it. Both verdicts come back side by side, so the value of memory is visible on every request.</p>
+<div class="card">
+<svg viewBox="0 0 1160 560" role="img" aria-label="Preflight sequence diagram">
+<defs><marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#141414"/></marker>
+<marker id="bo" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#F35404"/></marker></defs>
+<!-- lifelines -->
+<g>
+<rect x="40" y="20" width="160" height="44" rx="10" fill="#141414"/><text x="120" y="47" text-anchor="middle" class="t" style="fill:#fff">Engineer (UI)</text>
+<rect x="300" y="20" width="160" height="44" rx="10" fill="#fff" stroke="#141414"/><text x="380" y="47" text-anchor="middle" class="t">FastAPI + agent</text>
+<rect x="580" y="20" width="180" height="44" rx="10" fill="#FFF1E8" stroke="#F35404"/><text x="670" y="47" text-anchor="middle" class="t">Hindsight</text>
+<rect x="880" y="20" width="200" height="44" rx="10" fill="#fff" stroke="#141414"/><text x="980" y="47" text-anchor="middle" class="t">Groq LLM</text>
+</g>
+<g stroke="#9c948c" stroke-dasharray="5 5"><line x1="120" y1="64" x2="120" y2="540"/><line x1="380" y1="64" x2="380" y2="540"/><line x1="670" y1="64" x2="670" y2="540"/><line x1="980" y1="64" x2="980" y2="540"/></g>
+
+<line x1="120" y1="100" x2="376" y2="100" stroke="#141414" stroke-width="2" marker-end="url(#b)"/>
+<text x="130" y="92" class="m">1. POST /api/preflight</text>
+<text x="130" y="118" class="s">services, change summary, deploy time</text>
+
+<rect x="310" y="132" width="140" height="40" rx="8" fill="#F7F3EA" stroke="#141414"/>
+<text x="380" y="150" text-anchor="middle" class="s">2. ensure_bank()</text><text x="380" y="165" text-anchor="middle" class="s">describe(deploy)</text>
+
+<line x1="380" y1="200" x2="666" y2="200" stroke="#F35404" stroke-width="2" marker-end="url(#bo)"/>
+<text x="392" y="192" class="m" fill="#F35404">3. recall("Deploy next on Friday 02 Oct at 17:35 IST…")</text>
+<rect x="690" y="180" width="170" height="70" rx="8" fill="#FFF1E8" stroke="#F35404"/>
+<text x="700" y="200" class="s">4 strategies in parallel:</text><text x="700" y="218" class="s">meaning · exact terms</text><text x="700" y="236" class="s">entities · time window</text>
+<line x1="666" y1="262" x2="384" y2="262" stroke="#F35404" stroke-width="2" marker-end="url(#bo)"/>
+<text x="400" y="282" class="m" fill="#F35404">4. top memories (past incidents + lessons)</text>
+
+<line x1="380" y1="320" x2="976" y2="320" stroke="#141414" stroke-width="2" marker-end="url(#b)"/>
+<text x="392" y="312" class="m">5a. judge WITH memory: history + new deploy</text>
+<line x1="976" y1="350" x2="384" y2="350" stroke="#141414" stroke-width="2" marker-end="url(#b)"/>
+<text x="600" y="368" class="m">{will_fail, risk, confidence, reasoning, cited}</text>
+
+<line x1="380" y1="400" x2="976" y2="400" stroke="#141414" stroke-width="2" stroke-dasharray="7 4" marker-end="url(#b)"/>
+<text x="392" y="392" class="m">5b. judge WITHOUT memory: "(no team history available)"</text>
+<line x1="976" y1="430" x2="384" y2="430" stroke="#141414" stroke-width="2" stroke-dasharray="7 4" marker-end="url(#b)"/>
+<text x="600" y="448" class="m">baseline verdict</text>
+
+<line x1="376" y1="490" x2="124" y2="490" stroke="#141414" stroke-width="2" marker-end="url(#b)"/>
+<text x="136" y="482" class="m">6. both verdicts + recalled memories</text>
+<text x="136" y="512" class="s">UI shows them side by side, then offers Ask why and Record outcome</text>
+</svg>
+</div>
+
+<!-- 3. LEARNING LOOP -->
+<h2>3. The learning loop (the replay)</h2>
+<p class="sub">24 deployments are replayed in chronological order against a fresh memory bank. Each prediction is made before the outcome is known; then the real outcome, and a review of the agent's own prediction, is retained. Accuracy is computed from these real predictions.</p>
+<div class="card">
+<svg viewBox="0 0 1160 470" role="img" aria-label="Learning loop diagram">
+<defs><marker id="c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#141414"/></marker>
+<marker id="co" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#F35404"/></marker></defs>
+<!-- start -->
+<rect x="20" y="30" width="230" height="110" rx="12" fill="#141414"/>
+<text x="38" y="58" class="t" style="fill:#fff">0 · New memory bank</text>
+<text x="38" y="82" class="s" style="fill:#e8e2d6">create_bank(mission)</text>
+<text x="38" y="102" class="s" style="fill:#e8e2d6">retain 5 July deploys:</text>
+<text x="38" y="122" class="s" style="fill:#e8e2d6">INC-127, INC-131, INC-134 …</text>
+<line x1="250" y1="85" x2="300" y2="85" stroke="#141414" stroke-width="2" marker-end="url(#c)"/>
+
+<!-- loop steps -->
+<rect x="300" y="30" width="190" height="110" rx="12" fill="#fff" stroke="#141414"/>
+<text x="316" y="58" class="t">1 · Next deploy</text><text x="316" y="82" class="s">from app/data.py</text><text x="316" y="102" class="s">outcome is hidden</text><text x="316" y="122" class="s">e.g. pg-driver bump</text>
+<line x1="490" y1="85" x2="540" y2="85" stroke="#F35404" stroke-width="2" marker-end="url(#co)"/>
+<rect x="540" y="30" width="190" height="110" rx="12" fill="#FFF1E8" stroke="#F35404"/>
+<text x="556" y="58" class="t">2 · recall()</text><text x="556" y="82" class="s">similar past deploys</text><text x="556" y="102" class="s">+ earlier lessons</text><text x="556" y="122" class="s">from Hindsight</text>
+<line x1="730" y1="85" x2="780" y2="85" stroke="#141414" stroke-width="2" marker-end="url(#c)"/>
+<rect x="780" y="30" width="360" height="110" rx="12" fill="#fff" stroke="#141414"/>
+<text x="796" y="58" class="t">3 · Predict twice (Groq)</text>
+<text x="796" y="82" class="s">A: WITH recalled memory</text>
+<text x="796" y="102" class="s">B: WITHOUT memory (same model, same prompt)</text>
+<text x="796" y="122" class="s">both return will_fail + confidence</text>
+<line x1="960" y1="140" x2="960" y2="200" stroke="#141414" stroke-width="2" marker-end="url(#c)"/>
+
+<rect x="780" y="200" width="360" height="110" rx="12" fill="#fff" stroke="#141414"/>
+<text x="796" y="228" class="t">4 · Reveal the real outcome</text>
+<text x="796" y="252" class="s">score A and B: correct / wrong</text>
+<text x="796" y="272" class="s">append row to replay results</text>
+<text x="796" y="292" class="s">UI chart updates live</text>
+<line x1="780" y1="255" x2="730" y2="255" stroke="#F35404" stroke-width="2" marker-end="url(#co)"/>
+
+<rect x="300" y="200" width="430" height="110" rx="12" fill="#FFF1E8" stroke="#F35404" stroke-width="2"/>
+<text x="316" y="228" class="t">5 · retain() the lesson into Hindsight</text>
+<text x="316" y="252" class="s">"…Outcome: CAUSED INCIDENT INC-143. Root cause: …</text>
+<text x="316" y="272" class="s">Butterflaw predicted SAFE, which was WRONG. Lesson: changes</text>
+<text x="316" y="292" class="s">like this are dangerous for this team even though they look harmless."</text>
+
+<!-- loop back arrow -->
+<path d="M300 255 H270 V170 H395 V144" fill="none" stroke="#141414" stroke-width="2" marker-end="url(#c)"/>
+<text x="20" y="190" class="m">repeat for all 24 deploys</text>
+<text x="20" y="208" class="s">the next similar deploy now</text>
+<text x="20" y="226" class="s">recalls this lesson</text>
+
+<!-- outcome box -->
+<rect x="20" y="340" width="1120" height="110" rx="12" fill="#141414"/>
+<text x="40" y="370" class="t" style="fill:#fff">Result: a measured learning curve</text>
+<text x="40" y="396" class="s" style="fill:#e8e2d6">Agent A (memory) should improve as lessons accumulate: pg-driver bumps, Friday 17:00–19:00 checkout deploys, pool + payment-api combos, memory-limit cuts.</text>
+<text x="40" y="416" class="s" style="fill:#e8e2d6">Agent B (no memory) cannot improve: it only sees how risky a change sounds. It also over-warns on safe, flagged refactors.</text>
+<text x="40" y="436" class="s" style="fill:#e8e2d6">One genuinely novel failure (orjson serializer) is included on purpose: memory helps with repeated failures, not brand-new ones.</text>
+</svg>
+</div>
+
+<!-- 4. ASK WHY -->
+<h2>4. "Ask Butterflaw" and closing the loop</h2>
+<p class="sub">After a preflight, the engineer can ask why it warned them (answered by Hindsight reflect over the whole bank), and later record what actually happened so the memory keeps growing.</p>
+<div class="card">
+<svg viewBox="0 0 1160 300" role="img" aria-label="Ask and outcome flow">
+<defs><marker id="d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#141414"/></marker></defs>
+<text x="20" y="28" class="tag" fill="#6B6560">ASK WHY</text>
+<rect x="20" y="40" width="250" height="90" rx="12" fill="#fff" stroke="#141414"/><text x="36" y="66" class="t">Engineer asks</text><text x="36" y="90" class="s">"Why are you warning me, and</text><text x="36" y="108" class="s">what should I do instead?"</text>
+<line x1="270" y1="85" x2="320" y2="85" stroke="#141414" stroke-width="2" marker-end="url(#d)"/>
+<rect x="320" y="40" width="250" height="90" rx="12" fill="#fff" stroke="#141414"/><text x="336" y="66" class="t">POST /api/ask</text><text x="336" y="90" class="s">question + the deployment</text><text x="336" y="108" class="s">description as context</text>
+<line x1="570" y1="85" x2="620" y2="85" stroke="#141414" stroke-width="2" marker-end="url(#d)"/>
+<rect x="620" y="40" width="300" height="90" rx="12" fill="#FFF1E8" stroke="#F35404"/><text x="636" y="66" class="t">Hindsight reflect()</text><text x="636" y="90" class="s">agent loop: mental models →</text><text x="636" y="108" class="s">observations → raw facts</text>
+<line x1="920" y1="85" x2="970" y2="85" stroke="#141414" stroke-width="2" marker-end="url(#d)"/>
+<rect x="970" y="40" width="170" height="90" rx="12" fill="#141414"/><text x="986" y="66" class="t" style="fill:#fff">Answer</text><text x="986" y="90" class="s" style="fill:#e8e2d6">+ number of</text><text x="986" y="108" class="s" style="fill:#e8e2d6">memories used</text>
+
+<text x="20" y="178" class="tag" fill="#6B6560">RECORD OUTCOME</text>
+<rect x="20" y="190" width="250" height="90" rx="12" fill="#fff" stroke="#141414"/><text x="36" y="216" class="t">Deploy ships</text><text x="36" y="240" class="s">"Shipped safely" or</text><text x="36" y="258" class="s">"Caused an incident" + root cause</text>
+<line x1="270" y1="235" x2="320" y2="235" stroke="#141414" stroke-width="2" marker-end="url(#d)"/>
+<rect x="320" y="190" width="250" height="90" rx="12" fill="#fff" stroke="#141414"/><text x="336" y="216" class="t">POST /api/outcome</text><text x="336" y="240" class="s">compares with the memory</text><text x="336" y="258" class="s">agent's prediction</text>
+<line x1="570" y1="235" x2="620" y2="235" stroke="#141414" stroke-width="2" marker-end="url(#d)"/>
+<rect x="620" y="190" width="520" height="90" rx="12" fill="#FFF1E8" stroke="#F35404" stroke-width="2"/><text x="636" y="216" class="t">Hindsight retain()</text><text x="636" y="240" class="s">outcome + root cause + "I predicted X, I was right/wrong, lesson …"</text><text x="636" y="258" class="s">with real timestamp + metadata → recalled by the next similar deploy</text>
+</svg>
+</div>
+
+<!-- 5. MEMORY RECORD -->
+<h2>5. What one memory looks like (example)</h2>
+<p class="sub">Every retain call sends natural-language content plus a timestamp, context and metadata. Hindsight extracts facts and entities from it, links them in a graph, and consolidates repeated facts into observations.</p>
+<div class="card">
+<svg viewBox="0 0 1160 330" role="img" aria-label="Memory record anatomy">
+<defs><marker id="e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#F35404"/></marker></defs>
+<rect x="20" y="20" width="620" height="290" rx="12" fill="#141414"/>
+<text x="40" y="50" class="m" style="fill:#F9A36D">memory.retain(</text>
+<text x="60" y="76" class="m" style="fill:#fff">bank_id = "butterflaw-1790…",</text>
+<text x="60" y="100" class="m" style="fill:#fff">content = "Deploy v2.9.4 on Thursday 13 Aug 2026</text>
+<text x="60" y="120" class="m" style="fill:#fff">  at 12:30 IST. Services: auth-service. Change: Routine</text>
+<text x="60" y="140" class="m" style="fill:#fff">  library update: pg-driver 3.1.4 -&gt; 3.2.0. Outcome:</text>
+<text x="60" y="160" class="m" style="fill:#fff">  CAUSED INCIDENT INC-143. Root cause: prepared-statement</text>
+<text x="60" y="180" class="m" style="fill:#fff">  caching broke behind PgBouncer … Butterflaw predicted</text>
+<text x="60" y="200" class="m" style="fill:#fff">  INCIDENT, which was correct.",</text>
+<text x="60" y="226" class="m" style="fill:#fff">timestamp = 2026-08-13 12:30,</text>
+<text x="60" y="250" class="m" style="fill:#fff">context = "deployment_outcome",</text>
+<text x="60" y="274" class="m" style="fill:#fff">metadata = {deploy_id, version, services, failed})</text>
+<line x1="640" y1="165" x2="700" y2="165" stroke="#F35404" stroke-width="2" marker-end="url(#e)"/>
+<rect x="700" y="20" width="440" height="290" rx="12" fill="#FFF1E8" stroke="#F35404"/>
+<text x="720" y="50" class="t">Inside Hindsight</text>
+<text x="720" y="80" class="s">• Facts: "pg-driver 3.2.0 bump caused INC-143"</text>
+<text x="720" y="104" class="s">• Entities: pg-driver, auth-service, PgBouncer, INC-143</text>
+<text x="720" y="128" class="s">• Time: 13 Aug 2026, Thursday 12:30 IST</text>
+<text x="720" y="152" class="s">• Graph links to INC-139, INC-152 (same entity)</text>
+<text x="720" y="176" class="s">• Observation (consolidated over time):</text>
+<text x="736" y="198" class="s" style="font-style:italic">"pg-driver 3.2.x bumps repeatedly cause</text>
+<text x="736" y="218" class="s" style="font-style:italic">incidents behind PgBouncer"</text>
+<text x="720" y="252" class="s">Later recalled by keyword ("pg-driver"), entity,</text>
+<text x="720" y="272" class="s">meaning ("dependency update") or time</text>
+<text x="720" y="292" class="s">("Friday 17:40 checkout deploy").</text>
+</svg>
+</div>
+</main>
+</body>
+</html>
