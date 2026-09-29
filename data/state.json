@@ -1,0 +1,1318 @@
+{
+  "bank_id": "butterflaw-1790700269",
+  "replay": {
+    "status": "done",
+    "results": [
+      {
+        "n": 1,
+        "id": "DEP-0803",
+        "when": "2026-08-03T11:05:00",
+        "services": [
+          "checkout-service"
+        ],
+        "summary": "Refactor checkout pricing module (1,200 lines) behind feature flag checkout-pricing-v2, dark launch",
+        "failed": false,
+        "root_cause": "",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.73,
+          "reasoning": "Large refactor is behind a feature flag (checkout-pricing-v2) similar to prior safe flagged rollout (inventory-service v2.8.0); past incidents (INC-127, INC-131) stemmed from unflagged config changes, not flagged code changes.",
+          "cited": [
+            "INC-127",
+            "INC-131"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.7,
+          "reasoning": "A large refactor is risky, but the change is behind a feature flag and dark‑launched, which mitigates impact; no team‑specific failure patterns are known.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Deployed version v2.8.0 of inventory-service, which included a 1,400-line refactor of stock reservation logic behind the feature flag inv-reserve-v2. | When: 2026-07-28",
+            "type": "world",
+            "when": "2026-07-28"
+          },
+          {
+            "text": "The deployment changed the redis session eviction policy to allkeys-lru and updated auth-service token refresh logic. | When: 2026-07-21",
+            "type": "world",
+            "when": "2026-07-21"
+          },
+          {
+            "text": "The deployment included a new refund status webhook in payment-api, which was rolled out via a 5% canary for 2 hours. | When: 2026-07-30",
+            "type": "world",
+            "when": "2026-07-30"
+          },
+          {
+            "text": "Deployment of version v3.4.0 for services db-config and payment-api failed. | When: 2026-07-14",
+            "type": "world",
+            "when": "2026-07-14"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": true
+      },
+      {
+        "n": 2,
+        "id": "INC-139",
+        "when": "2026-08-05T15:40:00",
+        "services": [
+          "inventory-service"
+        ],
+        "summary": "Minor dependency bump: pg-driver 3.1.4 -> 3.2.0",
+        "failed": true,
+        "root_cause": "pg-driver 3.2 caches prepared statements by default; PgBouncer in transaction pooling mode rejected them and 40% of inventory reads failed for 31 minutes.",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.85,
+          "reasoning": "Inventory-service has recent successful deployments (e.g., v2.8.0) and the change is a minor pg-driver bump, which historically hasn't caused issues.",
+          "cited": []
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.6,
+          "reasoning": "A minor pg-driver version bump may introduce subtle incompatibilities, but without known breaking changes it is unlikely to cause a failure; the lack of explicit canary or feature flag increases risk modestly.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Deployed version v2.8.0 of inventory-service, which included a 1,400-line refactor of stock reservation logic behind the feature flag inv-reserve-v2. | When: 2026-07-28",
+            "type": "world",
+            "when": "2026-07-28"
+          },
+          {
+            "text": "The deployment changed the redis session eviction policy to allkeys-lru and updated auth-service token refresh logic. | When: 2026-07-21",
+            "type": "world",
+            "when": "2026-07-21"
+          },
+          {
+            "text": "Deployment of version v4.1.0 for checkout-service was completed successfully. | When: 2026-08-03 | Refactored checkout pricing module behind feature flag checkout-pricing-v2.",
+            "type": "world",
+            "when": "2026-08-03"
+          },
+          {
+            "text": "Deployment of version v3.4.0 for services db-config and payment-api failed. | When: 2026-07-14",
+            "type": "world",
+            "when": "2026-07-14"
+          }
+        ],
+        "memory_correct": false,
+        "baseline_correct": false
+      },
+      {
+        "n": 3,
+        "id": "INC-140",
+        "when": "2026-08-07T17:30:00",
+        "services": [
+          "checkout-service"
+        ],
+        "summary": "Fix typo in checkout success banner copy",
+        "failed": true,
+        "root_cause": "Friday 17:30 deploy restarted checkout pods during the weekly 17:45 catalog price-sync job; the cache warmed with stale prices and 22 minutes of orders were mispriced.",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.95,
+          "reasoning": "The change is a harmless UI copy fix and similar small changes have deployed successfully (e.g., checkout-service v4.1.0 on 2026-08-03).",
+          "cited": [
+            "2026-08-03"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.95,
+          "reasoning": "A simple copy fix in checkout-service is unlikely to affect functionality, and no team history suggests any hidden risk.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Checkout-service version v4.1.0 was successfully deployed on 2026-08-03, featuring a refactored pricing module behind feature flag checkout-pricing-v2, which was correctly predicted as safe by the Butterflaw system.",
+            "type": "observation",
+            "when": "2026-08-03"
+          },
+          {
+            "text": "Deployment of version v4.1.0 for checkout-service was completed successfully. | When: 2026-08-03 | Refactored checkout pricing module behind feature flag checkout-pricing-v2.",
+            "type": "world",
+            "when": "2026-08-03"
+          },
+          {
+            "text": "Butterflaw prediction system correctly predicted the deployment of v4.1.0 as safe. | When: 2026-08-03 | Involving: Butterflaw",
+            "type": "world",
+            "when": "2026-08-03"
+          },
+          {
+            "text": "The deployment changed the redis session eviction policy to allkeys-lru and updated auth-service token refresh logic. | When: 2026-07-21",
+            "type": "world",
+            "when": "2026-07-21"
+          }
+        ],
+        "memory_correct": false,
+        "baseline_correct": false
+      },
+      {
+        "n": 4,
+        "id": "DEP-0810",
+        "when": "2026-08-10T10:15:00",
+        "services": [
+          "notification-service"
+        ],
+        "summary": "Rewrite order-confirmation email templates for new branding",
+        "failed": false,
+        "root_cause": "",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.73,
+          "reasoning": "The team added CI schema validation for email templates after incident INC-134, which should catch missing variables in the new branding rewrite.",
+          "cited": [
+            "INC-134"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.85,
+          "reasoning": "The change only updates email templates in notification-service, an isolated component that can be rolled back if needed, and there is no history of similar failures.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Deployed version v2.8.0 of inventory-service, which included a 1,400-line refactor of stock reservation logic behind the feature flag inv-reserve-v2. | When: 2026-07-28",
+            "type": "world",
+            "when": "2026-07-28"
+          },
+          {
+            "text": "Inventory-service version v2.8.0 was successfully deployed on 2026-07-28, including a 1,400-line refactor of stock reservation logic behind feature flag inv-reserve-v2.",
+            "type": "observation",
+            "when": "2026-07-28"
+          },
+          {
+            "text": "Deployment DEP-0712 of version v2.8.0 was successful with no incidents. | When: 2026-07-28",
+            "type": "world",
+            "when": "2026-07-28"
+          },
+          {
+            "text": "Implemented schema validation for email templates in CI to prevent broken template changes from reaching production. | When: 2026-07-24 | Structural fix to prevent recurrence of incident INC-134.",
+            "type": "world",
+            "when": "2026-07-24"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": true
+      },
+      {
+        "n": 5,
+        "id": "INC-142",
+        "when": "2026-08-12T14:00:00",
+        "services": [
+          "db-config",
+          "payment-api"
+        ],
+        "summary": "Raise DB connection pool max from 50 to 120 and ship payment-api retry changes in the same release",
+        "failed": true,
+        "root_cause": "Same failure mode as INC-127: Postgres max_connections exhausted, payment timeouts for 19 minutes.",
+        "with_memory": {
+          "will_fail": true,
+          "risk": "high",
+          "confidence": 0.9,
+          "reasoning": "The changes mirror those that caused incident INC-127, where increasing the DB pool size and payment‑api retry logic exhausted Postgres connections and amplified load.",
+          "cited": [
+            "INC-127"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.6,
+          "reasoning": "Increasing the DB pool to 120 and adding retry logic may overload the database under load, but without prior incidents the change is not expected to cause a failure.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Incident INC-127 was caused by increased DB connection pool size exhausting Postgres max_connections and payment-api retry logic multiplying load.",
+            "type": "observation",
+            "when": "2026-07-14"
+          },
+          {
+            "text": "The deployment caused incident INC-127 due to increased DB connection pool size and payment-api retry logic. | When: 2026-07-14 | New pool size exhausted Postgres max_connections while payment-api retries multiplied load.",
+            "type": "world",
+            "when": "2026-07-14"
+          },
+          {
+            "text": "The deployment included a new refund status webhook in payment-api, which was rolled out via a 5% canary for 2 hours. | When: 2026-07-30",
+            "type": "world",
+            "when": "2026-07-30"
+          },
+          {
+            "text": "Deployment of version v3.4.0 for services db-config and payment-api failed. | When: 2026-07-14",
+            "type": "world",
+            "when": "2026-07-14"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": false
+      },
+      {
+        "n": 6,
+        "id": "INC-143",
+        "when": "2026-08-13T12:30:00",
+        "services": [
+          "auth-service"
+        ],
+        "summary": "Routine library update: pg-driver 3.1.4 -> 3.2.0 in auth-service",
+        "failed": true,
+        "root_cause": "Prepared-statement caching in pg-driver 3.2 broke behind PgBouncer; logins failed for 14 minutes.",
+        "with_memory": {
+          "will_fail": true,
+          "risk": "high",
+          "confidence": 0.87,
+          "reasoning": "The same pg-driver 3.2.0 update that broke inventory-service (INC-139) is being applied to auth-service without a feature flag or canary, repeating the known incompatibility with PgBouncer transaction pooling.",
+          "cited": [
+            "INC-139"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.65,
+          "reasoning": "A major version bump of the pg-driver may introduce subtle incompatibilities, but without known team issues the change is routine and likely safe.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Deployment of version v2.9.3 for inventory-service failed, causing incident INC-139. | When: 2026-08-05 | The pg-driver 3.2.0 update introduced cached prepared statements, which are incompatible with PgBouncer in transaction pooling mode.",
+            "type": "world",
+            "when": "2026-08-05"
+          },
+          {
+            "text": "The deployment changed the redis session eviction policy to allkeys-lru and updated auth-service token refresh logic. | When: 2026-07-21",
+            "type": "world",
+            "when": "2026-07-21"
+          },
+          {
+            "text": "Deployed version v2.8.0 of inventory-service, which included a 1,400-line refactor of stock reservation logic behind the feature flag inv-reserve-v2. | When: 2026-07-28",
+            "type": "world",
+            "when": "2026-07-28"
+          },
+          {
+            "text": "40% of inventory reads failed for 31 minutes due to the deployment of v2.9.3. | When: 2026-08-05 | Incompatibility between pg-driver 3.2.0 and PgBouncer transaction pooling.",
+            "type": "world",
+            "when": "2026-08-05"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": false
+      },
+      {
+        "n": 7,
+        "id": "INC-145",
+        "when": "2026-08-17T16:00:00",
+        "services": [
+          "k8s-platform",
+          "inventory-service"
+        ],
+        "summary": "Lower inventory-service memory limit from 1Gi to 512Mi to cut cluster cost",
+        "failed": true,
+        "root_cause": "Pods were OOMKilled during the nightly stock reconciliation; stock counts went stale and 600 orders were oversold.",
+        "with_memory": {
+          "will_fail": true,
+          "risk": "high",
+          "confidence": 0.78,
+          "reasoning": "Recent inventory-service deployment (v2.9.3) failed after a risky change without a canary (2026-08-05), and this memory reduction lacks feature‑flag or canary safeguards, making OOM likely.",
+          "cited": [
+            "2026-08-05"
+          ]
+        },
+        "without_memory": {
+          "will_fail": true,
+          "risk": "high",
+          "confidence": 0.73,
+          "reasoning": "Reducing inventory-service memory limit to 512Mi may cause OOM crashes under load, a common cause of incidents for memory‑intensive services.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Deployed version v2.8.0 of inventory-service, which included a 1,400-line refactor of stock reservation logic behind the feature flag inv-reserve-v2. | When: 2026-07-28",
+            "type": "world",
+            "when": "2026-07-28"
+          },
+          {
+            "text": "The deployment changed the redis session eviction policy to allkeys-lru and updated auth-service token refresh logic. | When: 2026-07-21",
+            "type": "world",
+            "when": "2026-07-21"
+          },
+          {
+            "text": "The Butterflaw prediction tool incorrectly labeled the v2.9.3 deployment of inventory-service as safe.",
+            "type": "observation",
+            "when": "2026-08-05"
+          },
+          {
+            "text": "Inventory-service version v2.8.0 was successfully deployed on 2026-07-28, including a 1,400-line refactor of stock reservation logic behind feature flag inv-reserve-v2.",
+            "type": "observation",
+            "when": "2026-07-28"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": true
+      },
+      {
+        "n": 8,
+        "id": "DEP-0819",
+        "when": "2026-08-19T11:20:00",
+        "services": [
+          "payment-api"
+        ],
+        "summary": "Add UPI Autopay mandate endpoint, 5% canary for 2 hours",
+        "failed": false,
+        "root_cause": "",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.65,
+          "reasoning": "Previous 5% canary for payment‑api succeeded (2026‑07‑30) but a recent v3.7.0 rollout caused DB connection exhaustion (INC-142), so the new endpoint adds load risk despite safe canary.",
+          "cited": [
+            "INC-142"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.85,
+          "reasoning": "A small 5% canary for a short window on a single service limits exposure, and no known failure patterns exist for this team.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "The deployment included a new refund status webhook in payment-api, which was rolled out via a 5% canary for 2 hours. | When: 2026-07-30",
+            "type": "world",
+            "when": "2026-07-30"
+          },
+          {
+            "text": "Payment-api version v3.4.3 was successfully deployed on 2026-07-30, including a new refund status webhook rolled out via a 5% canary for 2 hours.",
+            "type": "observation",
+            "when": "2026-07-30"
+          },
+          {
+            "text": "Deployment of payment-api version v3.4.3 was successfully completed. | When: 2026-07-30",
+            "type": "world",
+            "when": "2026-07-30"
+          },
+          {
+            "text": "Deployment of version v3.4.0 for services db-config and payment-api failed. | When: 2026-07-14",
+            "type": "world",
+            "when": "2026-07-14"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": true
+      },
+      {
+        "n": 9,
+        "id": "INC-147",
+        "when": "2026-08-21T17:50:00",
+        "services": [
+          "checkout-service"
+        ],
+        "summary": "Update GST rounding helper (2-line change)",
+        "failed": true,
+        "root_cause": "Friday evening deploy again collided with the weekly price-sync job; stale prices served for 18 minutes.",
+        "with_memory": {
+          "will_fail": true,
+          "risk": "high",
+          "confidence": 0.73,
+          "reasoning": "Deploying during the weekly 17:45 catalog price-sync job has previously caused incident INC-140, and the team learned that even minor changes can be dangerous at that time.",
+          "cited": [
+            "INC-140"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.85,
+          "reasoning": "The change is a minimal two‑line update to a rounding helper in a single service, deployed during a low‑traffic window, making incident likelihood minimal.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Checkout-service version v4.1.0 was successfully deployed on 2026-08-03, featuring a refactored pricing module behind feature flag checkout-pricing-v2, which was correctly predicted as safe by the Butterflaw system.",
+            "type": "observation",
+            "when": "2026-08-03"
+          },
+          {
+            "text": "Deployment of version v4.1.0 for checkout-service was completed successfully. | When: 2026-08-03 | Refactored checkout pricing module behind feature flag checkout-pricing-v2.",
+            "type": "world",
+            "when": "2026-08-03"
+          },
+          {
+            "text": "The deployment changed the redis session eviction policy to allkeys-lru and updated auth-service token refresh logic. | When: 2026-07-21",
+            "type": "world",
+            "when": "2026-07-21"
+          },
+          {
+            "text": "Deployment of version v4.1.1 for checkout-service failed, causing incident INC-140. | When: 2026-08-07 | The deployment restarted checkout pods during a weekly catalog price-sync job, leading to 22 minutes of mispriced orders.",
+            "type": "world",
+            "when": "2026-08-07"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": false
+      },
+      {
+        "n": 10,
+        "id": "INC-149",
+        "when": "2026-08-24T13:10:00",
+        "services": [
+          "redis-cache",
+          "auth-service"
+        ],
+        "summary": "Change session key TTL from 24h to 12h and roll auth-service token refresh in the same deploy",
+        "failed": true,
+        "root_cause": "Session keys expired mid-flight while token refresh logic changed; mass logouts for 20 minutes.",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.8,
+          "reasoning": "A similar change to auth-service token refresh and redis settings on 2026-07-21 succeeded without incident, and the recent auth-service failures were tied to a pg-driver upgrade, not token logic alone.",
+          "cited": [
+            "2026-07-21"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.65,
+          "reasoning": "Changing session TTL and rolling token refresh together could cause temporary authentication issues but are unlikely to crash services; no known safeguards like feature flags are mentioned.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "The deployment changed the redis session eviction policy to allkeys-lru and updated auth-service token refresh logic. | When: 2026-07-21",
+            "type": "world",
+            "when": "2026-07-21"
+          },
+          {
+            "text": "Deployed version v2.8.0 of inventory-service, which included a 1,400-line refactor of stock reservation logic behind the feature flag inv-reserve-v2. | When: 2026-07-28",
+            "type": "world",
+            "when": "2026-07-28"
+          },
+          {
+            "text": "Deployment of version v2.9.4 for auth-service failed due to a library update from pg-driver 3.1.4 to 3.2.0. | When: 2026-08-13 | Prepared-statement caching in pg-driver 3.2.0 is incompatible with PgBouncer.",
+            "type": "world",
+            "when": "2026-08-13"
+          },
+          {
+            "text": "Deployment of version v3.7.0 failed, causing incident INC-142. | When: 2026-08-12 | Postgres max_connections exhausted due to increased DB connection pool limit, leading to 19 minutes of payment timeouts.",
+            "type": "world",
+            "when": "2026-08-12"
+          }
+        ],
+        "memory_correct": false,
+        "baseline_correct": false
+      },
+      {
+        "n": 11,
+        "id": "DEP-0826",
+        "when": "2026-08-26T10:40:00",
+        "services": [
+          "inventory-service"
+        ],
+        "summary": "Schema migration adding reserved_qty column using expand/contract, backfill in batches of 5,000",
+        "failed": false,
+        "root_cause": "",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.65,
+          "reasoning": "The team’s recent failure (INC-145) coincided with a memory limit reduction, suggesting resource constraints are a risk, but the use of an expand/contract migration is a proven safe pattern.",
+          "cited": [
+            "INC-145"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.85,
+          "reasoning": "The expand/contract migration with batched backfill follows safe practices and limits runtime impact, making a failure unlikely.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Deployed version v2.8.0 of inventory-service, which included a 1,400-line refactor of stock reservation logic behind the feature flag inv-reserve-v2. | When: 2026-07-28",
+            "type": "world",
+            "when": "2026-07-28"
+          },
+          {
+            "text": "Deployment of version v2.10.0 for k8s-platform and inventory-service failed. | When: 2026-08-17",
+            "type": "world",
+            "when": "2026-08-17"
+          },
+          {
+            "text": "Deployment of version v2.10.0 for k8s-platform and inventory-service failed on 2026-08-17, triggering incident INC-145.",
+            "type": "observation",
+            "when": "2026-08-17"
+          },
+          {
+            "text": "Inventory-service version v2.8.0 was successfully deployed on 2026-07-28, including a 1,400-line refactor of stock reservation logic behind feature flag inv-reserve-v2.",
+            "type": "observation",
+            "when": "2026-07-28"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": true
+      },
+      {
+        "n": 12,
+        "id": "DEP-0827",
+        "when": "2026-08-27T15:15:00",
+        "services": [
+          "notification-service"
+        ],
+        "summary": "Add WhatsApp message template for shipping updates",
+        "failed": false,
+        "root_cause": "",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.85,
+          "reasoning": "Notification-service updates have historically been safe (e.g., v1.8.0 on 2026-08-10) and this change only adds a template without touching dependencies.",
+          "cited": []
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.8,
+          "reasoning": "Adding a WhatsApp template is a simple data/config change with minimal impact on existing functionality.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Deployment of version v1.8.0 for notification-service was completed successfully. | When: 2026-08-10 | Rewrite order-confirmation email templates for new branding.",
+            "type": "world",
+            "when": "2026-08-10"
+          },
+          {
+            "text": "Notification-service version v1.8.0 was successfully deployed on 2026-08-10, including a rewrite of order-confirmation email templates for new branding, which was correctly predicted as safe by the Butterflaw system.",
+            "type": "observation",
+            "when": "2026-08-10"
+          },
+          {
+            "text": "Deployment of version v2.9.4 for auth-service failed due to a library update from pg-driver 3.1.4 to 3.2.0. | When: 2026-08-13 | Prepared-statement caching in pg-driver 3.2.0 is incompatible with PgBouncer.",
+            "type": "world",
+            "when": "2026-08-13"
+          },
+          {
+            "text": "Butterflaw correctly predicted the deployment of version v1.8.0 would be safe. | When: 2026-08-10 | Involving: Butterflaw",
+            "type": "world",
+            "when": "2026-08-10"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": true
+      },
+      {
+        "n": 13,
+        "id": "INC-152",
+        "when": "2026-08-31T11:00:00",
+        "services": [
+          "payment-api"
+        ],
+        "summary": "Bump pg-driver to 3.2.1 in payment-api",
+        "failed": true,
+        "root_cause": "pg-driver 3.2.x prepared-statement caching broke behind PgBouncer; UPI payment confirmations failed for 9 minutes.",
+        "with_memory": {
+          "will_fail": true,
+          "risk": "high",
+          "confidence": 0.85,
+          "reasoning": "Previous upgrades to pg-driver 3.2.x caused incompatibility with PgBouncer, leading to deployment failures and read errors; bumping to 3.2.1 likely repeats the issue.",
+          "cited": [
+            "2026-08-13",
+            "2026-08-05"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.6,
+          "reasoning": "A pg-driver bump can introduce subtle incompatibilities, but affecting only payment‑api and without known history the risk is moderate, not high enough to expect failure.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Deployed version v3.8.0 of payment-api service, including a new UPI Autopay mandate endpoint. | When: 2026-08-19",
+            "type": "world",
+            "when": "2026-08-19"
+          },
+          {
+            "text": "Payment-api version v3.8.0 was successfully deployed on 2026-08-19 as deployment DEP-0819, including a new UPI Autopay mandate endpoint, rolled out via a 5% canary for 2 hours, and correctly predicted as safe by Butterflaw.",
+            "type": "observation",
+            "when": "2026-08-19"
+          },
+          {
+            "text": "Payment-api version v3.4.3 was successfully deployed on 2026-07-30, including a new refund status webhook rolled out via a 5% canary for 2 hours.",
+            "type": "observation",
+            "when": "2026-07-30"
+          },
+          {
+            "text": "Deployment of version v2.9.4 for auth-service failed due to a library update from pg-driver 3.1.4 to 3.2.0. | When: 2026-08-13 | Prepared-statement caching in pg-driver 3.2.0 is incompatible with PgBouncer.",
+            "type": "world",
+            "when": "2026-08-13"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": false
+      },
+      {
+        "n": 14,
+        "id": "DEP-0902",
+        "when": "2026-09-02T16:30:00",
+        "services": [
+          "checkout-service"
+        ],
+        "summary": "Cart API pagination for large carts",
+        "failed": false,
+        "root_cause": "",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.6,
+          "reasoning": "Checkout-service changes have been safe when behind a feature flag (2026-08-03), but this pagination change lacks a flag or canary, raising moderate risk.",
+          "cited": [
+            "2026-08-03"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.85,
+          "reasoning": "The change adds pagination to the Cart API, a non‑breaking enhancement that does not modify existing endpoints, making it unlikely to cause a production incident.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Checkout-service version v4.1.0 was successfully deployed on 2026-08-03, featuring a refactored pricing module behind feature flag checkout-pricing-v2, which was correctly predicted as safe by the Butterflaw system.",
+            "type": "observation",
+            "when": "2026-08-03"
+          },
+          {
+            "text": "Deployment of version v4.1.0 for checkout-service was completed successfully. | When: 2026-08-03 | Refactored checkout pricing module behind feature flag checkout-pricing-v2.",
+            "type": "world",
+            "when": "2026-08-03"
+          },
+          {
+            "text": "The deployment included a new refund status webhook in payment-api, which was rolled out via a 5% canary for 2 hours. | When: 2026-07-30",
+            "type": "world",
+            "when": "2026-07-30"
+          },
+          {
+            "text": "Deployment of payment-api version v3.4.3 was successfully completed. | When: 2026-07-30",
+            "type": "world",
+            "when": "2026-07-30"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": true
+      },
+      {
+        "n": 15,
+        "id": "INC-154",
+        "when": "2026-09-04T17:20:00",
+        "services": [
+          "checkout-service",
+          "notification-service"
+        ],
+        "summary": "Tweak checkout confirmation event payload",
+        "failed": true,
+        "root_cause": "Third Friday-evening checkout deploy to overlap the price-sync job; stale prices plus duplicate confirmation emails.",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.65,
+          "reasoning": "The change is a minor payload tweak and not behind a feature flag, but past incidents (INC-140) show pod restarts during the weekly price‑sync job can cause issues, so timing adds moderate risk.",
+          "cited": [
+            "INC-140"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.6,
+          "reasoning": "A payload schema tweak can break downstream consumers if not backward‑compatible, and deploying on a Friday afternoon increases exposure to traffic spikes.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Deployed version v4.3.0 of checkout-service, which included Cart API pagination for large carts. | When: 2026-09-02",
+            "type": "world",
+            "when": "2026-09-02"
+          },
+          {
+            "text": "Deployment of version v3.8.2 for payment-api failed on 2026-08-31, triggering incident INC-152, which was caused by pg-driver 3.2.x prepared-statement caching issues with PgBouncer.",
+            "type": "observation",
+            "when": "2026-08-31"
+          },
+          {
+            "text": "Deployment of version v4.1.0 for checkout-service was completed successfully. | When: 2026-08-03 | Refactored checkout pricing module behind feature flag checkout-pricing-v2.",
+            "type": "world",
+            "when": "2026-08-03"
+          },
+          {
+            "text": "Checkout-service version v4.1.0 was successfully deployed on 2026-08-03, featuring a refactored pricing module behind feature flag checkout-pricing-v2, which was correctly predicted as safe by the Butterflaw system.",
+            "type": "observation",
+            "when": "2026-08-03"
+          }
+        ],
+        "memory_correct": false,
+        "baseline_correct": false
+      },
+      {
+        "n": 16,
+        "id": "INC-156",
+        "when": "2026-09-07T12:00:00",
+        "services": [
+          "k8s-platform",
+          "inventory-service"
+        ],
+        "summary": "Reduce inventory-service CPU request and set memory limit to 600Mi",
+        "failed": true,
+        "root_cause": "OOMKilled again during stock reconciliation; the job needs about 850Mi at peak.",
+        "with_memory": {
+          "will_fail": true,
+          "risk": "high",
+          "confidence": 0.82,
+          "reasoning": "Recent memory limit reductions to 512 Mi caused OOMKilled pods and incident INC-145; raising the limit only to 600 Mi still leaves it far below the original 1 Gi and repeats the risky pattern.",
+          "cited": [
+            "INC-145"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.62,
+          "reasoning": "Reducing CPU request and capping memory may cause throttling or OOM if inventory-service load spikes, but without known history the change is not inherently unsafe.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "The memory limit for inventory-service was reduced from 1Gi to 512Mi on 2026-08-17 to reduce cluster costs, which caused OOMKilled pods during nightly stock reconciliation and resulted in 600 oversold orders.",
+            "type": "observation",
+            "when": "2026-08-17"
+          },
+          {
+            "text": "Memory limit for inventory-service was reduced from 1Gi to 512Mi to reduce cluster costs. | When: 2026-08-17",
+            "type": "world",
+            "when": "2026-08-17"
+          },
+          {
+            "text": "Deployment of version v2.10.0 for k8s-platform and inventory-service failed. | When: 2026-08-17",
+            "type": "world",
+            "when": "2026-08-17"
+          },
+          {
+            "text": "Deployment of version v2.10.0 for k8s-platform and inventory-service failed on 2026-08-17, triggering incident INC-145.",
+            "type": "observation",
+            "when": "2026-08-17"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": false
+      },
+      {
+        "n": 17,
+        "id": "DEP-0909",
+        "when": "2026-09-09T14:45:00",
+        "services": [
+          "db-config"
+        ],
+        "summary": "Tune DB statement timeout from 30s to 20s, no service code changes",
+        "failed": false,
+        "root_cause": "",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.87,
+          "reasoning": "The change only lowers a DB statement timeout and does not modify code or driver versions; past incidents (INC-152, INC-142) involved driver caching and connection pool limits, not timeout settings.",
+          "cited": [
+            "INC-152",
+            "INC-142"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.75,
+          "reasoning": "Reducing the DB statement timeout from 30s to 20s introduces minimal risk as no code changes are deployed, though very long queries could be affected.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "The deployment of v3.8.2 caused incident INC-152 due to pg-driver 3.2.x prepared-statement caching issues with PgBouncer. | When: 2026-08-31",
+            "type": "world",
+            "when": "2026-08-31"
+          },
+          {
+            "text": "Deployment of version v3.4.0 for services db-config and payment-api failed. | When: 2026-07-14",
+            "type": "world",
+            "when": "2026-07-14"
+          },
+          {
+            "text": "Deployment of version v3.7.0 failed, causing incident INC-142. | When: 2026-08-12 | Postgres max_connections exhausted due to increased DB connection pool limit, leading to 19 minutes of payment timeouts.",
+            "type": "world",
+            "when": "2026-08-12"
+          },
+          {
+            "text": "The deployment changed the redis session eviction policy to allkeys-lru and updated auth-service token refresh logic. | When: 2026-07-21",
+            "type": "world",
+            "when": "2026-07-21"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": true
+      },
+      {
+        "n": 18,
+        "id": "DEP-0910",
+        "when": "2026-09-10T11:30:00",
+        "services": [
+          "auth-service"
+        ],
+        "summary": "Large OAuth provider refactor behind feature flag auth-oidc-v2, dark launch",
+        "failed": false,
+        "root_cause": "",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.78,
+          "reasoning": "Large refactors behind feature flags have consistently succeeded (e.g., inventory-service v2.8.0 and checkout-service v4.1.0), and the auth-service change is also gated behind a dark launch flag, reducing exposure.",
+          "cited": []
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.7,
+          "reasoning": "The refactor is behind a feature flag and will be dark‑launched, which mitigates impact; no team‑specific failure patterns are known.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Deployed version v2.8.0 of inventory-service, which included a 1,400-line refactor of stock reservation logic behind the feature flag inv-reserve-v2. | When: 2026-07-28",
+            "type": "world",
+            "when": "2026-07-28"
+          },
+          {
+            "text": "Inventory-service version v2.8.0 was successfully deployed on 2026-07-28, including a 1,400-line refactor of stock reservation logic behind feature flag inv-reserve-v2.",
+            "type": "observation",
+            "when": "2026-07-28"
+          },
+          {
+            "text": "Deployment of version v4.1.0 for checkout-service was completed successfully. | When: 2026-08-03 | Refactored checkout pricing module behind feature flag checkout-pricing-v2.",
+            "type": "world",
+            "when": "2026-08-03"
+          },
+          {
+            "text": "The deployment changed the redis session eviction policy to allkeys-lru and updated auth-service token refresh logic. | When: 2026-07-21",
+            "type": "world",
+            "when": "2026-07-21"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": true
+      },
+      {
+        "n": 19,
+        "id": "INC-158",
+        "when": "2026-09-11T17:40:00",
+        "services": [
+          "checkout-service"
+        ],
+        "summary": "Hotfix: null check in coupon validation",
+        "failed": true,
+        "root_cause": "Friday 17:40 deploy during price-sync; stale prices for 15 minutes.",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.7,
+          "reasoning": "Past Friday evening deployments of checkout-service have conflicted with the price‑sync job (see INC-154), but this hotfix only adds a null check in coupon validation and does not modify the confirmation payload, lowering the failure likelihood.",
+          "cited": [
+            "INC-154"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.85,
+          "reasoning": "A simple null‑check hotfix in coupon validation is low‑impact and follows typical safe‑change patterns.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "The team identified that checkout confirmation payload changes are dangerous to deploy during Friday evenings due to potential conflicts with the price-sync job.",
+            "type": "observation",
+            "when": "2026-09-04"
+          },
+          {
+            "text": "Deployed version v4.3.0 of checkout-service, which included Cart API pagination for large carts. | When: 2026-09-02",
+            "type": "world",
+            "when": "2026-09-02"
+          },
+          {
+            "text": "The team learned that checkout confirmation payload changes are dangerous to deploy during Friday evenings due to potential conflicts with the price-sync job.",
+            "type": "world",
+            "when": "2026-09-04"
+          },
+          {
+            "text": "Deployment of version v4.1.0 for checkout-service was completed successfully. | When: 2026-08-03 | Refactored checkout pricing module behind feature flag checkout-pricing-v2.",
+            "type": "world",
+            "when": "2026-08-03"
+          }
+        ],
+        "memory_correct": false,
+        "baseline_correct": false
+      },
+      {
+        "n": 20,
+        "id": "INC-160",
+        "when": "2026-09-14T15:00:00",
+        "services": [
+          "db-config",
+          "payment-api"
+        ],
+        "summary": "Change DB pool idle timeout and deploy payment-api refund flow together",
+        "failed": true,
+        "root_cause": "Pool churn plus refund retries exhausted connections; refunds stuck for 26 minutes.",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.65,
+          "reasoning": "Past incidents (INC-127, INC-142) were triggered by increasing DB pool size, not by idle timeout changes, and the refund flow was previously canary‑tested safely; however deploying db-config and payment‑api together still adds moderate risk.",
+          "cited": [
+            "INC-127",
+            "INC-142"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.65,
+          "reasoning": "Changing DB pool idle timeout while introducing a new refund flow increases load and connection risks, especially without feature flags, leading to a moderate chance of issues.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "The deployment included a new refund status webhook in payment-api, which was rolled out via a 5% canary for 2 hours. | When: 2026-07-30",
+            "type": "world",
+            "when": "2026-07-30"
+          },
+          {
+            "text": "Deployment of version v3.4.0 for services db-config and payment-api failed. | When: 2026-07-14",
+            "type": "world",
+            "when": "2026-07-14"
+          },
+          {
+            "text": "Deployment of version v3.4.0 for services db-config and payment-api failed on 2026-07-14, triggering incident INC-127.",
+            "type": "observation",
+            "when": "2026-07-14"
+          },
+          {
+            "text": "Deployment of version v3.7.0 failed, causing incident INC-142. | When: 2026-08-12 | Postgres max_connections exhausted due to increased DB connection pool limit, leading to 19 minutes of payment timeouts.",
+            "type": "world",
+            "when": "2026-08-12"
+          }
+        ],
+        "memory_correct": false,
+        "baseline_correct": false
+      },
+      {
+        "n": 21,
+        "id": "DEP-0916",
+        "when": "2026-09-16T10:05:00",
+        "services": [
+          "redis-cache"
+        ],
+        "summary": "Increase redis maxmemory from 4GB to 6GB",
+        "failed": false,
+        "root_cause": "",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.85,
+          "reasoning": "The only recorded incident (INC-152) involved PostgreSQL driver caching, not Redis configuration; increasing maxmemory is a straightforward change with no prior failure pattern.",
+          "cited": [
+            "INC-152"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.73,
+          "reasoning": "Increasing Redis maxmemory is a non‑breaking configuration change that typically requires a restart but does not alter data structures or code paths; such changes are generally safe when applied during a normal maintenance window.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Deployment of version v2.8.0 for auth-service was completed successfully. | When: 2026-09-10 | Large OAuth provider refactor behind feature flag auth-oidc-v2, dark launch.",
+            "type": "world",
+            "when": "2026-09-10"
+          },
+          {
+            "text": "Auth-service version v2.8.0 was successfully deployed on 2026-09-10 as deployment DEP-0910, featuring a large OAuth provider refactor behind feature flag auth-oidc-v2, which was correctly predicted as safe by the Butterflaw system.",
+            "type": "observation",
+            "when": "2026-09-10"
+          },
+          {
+            "text": "The deployment changed the redis session eviction policy to allkeys-lru and updated auth-service token refresh logic. | When: 2026-07-21",
+            "type": "world",
+            "when": "2026-07-21"
+          },
+          {
+            "text": "Deployment of version v1.8.0 for notification-service was completed successfully. | When: 2026-08-10 | Rewrite order-confirmation email templates for new branding.",
+            "type": "world",
+            "when": "2026-08-10"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": true
+      },
+      {
+        "n": 22,
+        "id": "DEP-0918",
+        "when": "2026-09-18T11:00:00",
+        "services": [
+          "checkout-service"
+        ],
+        "summary": "Checkout address autocomplete (Friday morning release)",
+        "failed": false,
+        "root_cause": "",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.85,
+          "reasoning": "The only failure (INC-154) involved a Friday‑evening deployment overlapping the price‑sync job, whereas this address‑autocomplete change is scheduled for Friday morning and does not modify the confirmation payload.",
+          "cited": [
+            "INC-154"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.65,
+          "reasoning": "The change is a UI autocomplete feature in checkout, which typically has low impact, but a Friday morning release carries moderate risk due to reduced immediate support.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Deployment of version v4.1.0 for checkout-service was completed successfully. | When: 2026-08-03 | Refactored checkout pricing module behind feature flag checkout-pricing-v2.",
+            "type": "world",
+            "when": "2026-08-03"
+          },
+          {
+            "text": "Deployed version v4.3.0 of checkout-service, which included Cart API pagination for large carts. | When: 2026-09-02",
+            "type": "world",
+            "when": "2026-09-02"
+          },
+          {
+            "text": "Checkout-service version v4.1.0 was successfully deployed on 2026-08-03, featuring a refactored pricing module behind feature flag checkout-pricing-v2, which was correctly predicted as safe by the Butterflaw system.",
+            "type": "observation",
+            "when": "2026-08-03"
+          },
+          {
+            "text": "Checkout-service version v4.3.0 was successfully deployed on 2026-09-02 as deployment DEP-0902, featuring Cart API pagination for large carts, and was correctly predicted as safe by the Butterflaw system.",
+            "type": "observation",
+            "when": "2026-09-02"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": true
+      },
+      {
+        "n": 23,
+        "id": "INC-163",
+        "when": "2026-09-22T13:30:00",
+        "services": [
+          "notification-service"
+        ],
+        "summary": "Bump pg-driver to 3.2.1 in notification-service",
+        "failed": true,
+        "root_cause": "Same pg-driver 3.2 / PgBouncer prepared-statement failure; notifications stalled for 11 minutes.",
+        "with_memory": {
+          "will_fail": true,
+          "risk": "high",
+          "confidence": 0.78,
+          "reasoning": "pg-driver 3.2.x caused incidents with PgBouncer in other services (e.g., INC-152) and the same bump is applied to notification-service, making failure likely.",
+          "cited": [
+            "INC-152"
+          ]
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "low",
+          "confidence": 0.75,
+          "reasoning": "The pg-driver bump is a minor version increase and typically backward compatible, and no other risky changes are present.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "The deployment of v3.8.2 caused incident INC-152 due to pg-driver 3.2.x prepared-statement caching issues with PgBouncer. | When: 2026-08-31",
+            "type": "world",
+            "when": "2026-08-31"
+          },
+          {
+            "text": "Deployment of version v2.11.0 for inventory-service was completed successfully. | When: 2026-08-26",
+            "type": "world",
+            "when": "2026-08-26"
+          },
+          {
+            "text": "Deployment of version v1.7.0 for notification-service failed, causing incident INC-134. | When: 2026-07-24 | A missing template variable crashed the email worker, causing 12,000 emails to queue for 3 hours.",
+            "type": "world",
+            "when": "2026-07-24"
+          },
+          {
+            "text": "Deployment of version v2.9.4 for auth-service failed due to a library update from pg-driver 3.1.4 to 3.2.0. | When: 2026-08-13 | Prepared-statement caching in pg-driver 3.2.0 is incompatible with PgBouncer.",
+            "type": "world",
+            "when": "2026-08-13"
+          }
+        ],
+        "memory_correct": true,
+        "baseline_correct": false
+      },
+      {
+        "n": 24,
+        "id": "INC-165",
+        "when": "2026-09-24T16:10:00",
+        "services": [
+          "inventory-service"
+        ],
+        "summary": "Switch inventory-service JSON serializer to orjson for speed",
+        "failed": true,
+        "root_cause": "Novel failure: orjson serialised Decimal stock values differently and fractional-unit SKUs were rounded.",
+        "with_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.6,
+          "reasoning": "Switching to orjson introduces a runtime dependency change without a feature flag, and recent deployments (e.g., v2.12.0) have shown fragility when updating inventory-service.",
+          "cited": []
+        },
+        "without_memory": {
+          "will_fail": false,
+          "risk": "medium",
+          "confidence": 0.6,
+          "reasoning": "Switching to orjson is a known performance tweak but can introduce serialization edge‑cases; without prior incidents the change is not inherently unsafe.",
+          "cited": []
+        },
+        "recalled": [
+          {
+            "text": "Deployment of version v2.11.0 for inventory-service was completed successfully. | When: 2026-08-26",
+            "type": "world",
+            "when": "2026-08-26"
+          },
+          {
+            "text": "Inventory-service version v2.11.0 was successfully deployed on 2026-08-26, with the Butterflaw system correctly predicting the deployment as safe.",
+            "type": "observation",
+            "when": "2026-08-26"
+          },
+          {
+            "text": "Deployed version v2.8.0 of inventory-service, which included a 1,400-line refactor of stock reservation logic behind the feature flag inv-reserve-v2. | When: 2026-07-28",
+            "type": "world",
+            "when": "2026-07-28"
+          },
+          {
+            "text": "The Butterflaw prediction tool incorrectly labeled the v2.9.3 deployment of inventory-service as safe.",
+            "type": "observation",
+            "when": "2026-08-05"
+          }
+        ],
+        "memory_correct": false,
+        "baseline_correct": false
+      }
+    ],
+    "progress": 24,
+    "total": 24,
+    "started_at": "2026-09-29T16:44:29.189017",
+    "bank_id": "butterflaw-1790700269",
+    "finished_at": "2026-09-29T16:48:04.301419"
+  },
+  "preflights": {
+    "PRE-CF8135": {
+      "deployment": {
+        "id": "PRE-CF8135",
+        "version": "next",
+        "when": "2026-10-02T17:35:00",
+        "services": [
+          "checkout-service"
+        ],
+        "summary": "Bump pg-driver to 3.2.1 in checkout-service",
+        "failed": false,
+        "root_cause": ""
+      },
+      "with_memory": {
+        "will_fail": true,
+        "risk": "high",
+        "confidence": 0.78,
+        "reasoning": "pg-driver 3.2.1 caused a pg-driver incompatibility incident in notification-service (2026-09-22) and Friday evening checkout-service deployments have previously collided with the price‑sync job (2026-09-04, 2026-08-21).",
+        "cited": [
+          "2026-09-22",
+          "2026-09-04",
+          "2026-08-21"
+        ]
+      },
+      "without_memory": {
+        "will_fail": false,
+        "risk": "medium",
+        "confidence": 0.6,
+        "reasoning": "A minor version bump of the pg-driver can introduce subtle incompatibilities, and deploying on a Friday reduces immediate rollback support, raising risk to medium.",
+        "cited": []
+      },
+      "recalled": [
+        {
+          "text": "The team identified that checkout confirmation payload changes are dangerous to deploy during Friday evenings due to potential conflicts with the price-sync job.",
+          "type": "observation",
+          "when": "2026-09-04"
+        },
+        {
+          "text": "Deployment of notification-service version v1.10.1 failed due to a pg-driver 3.2.1 incompatibility with PgBouncer prepared statements. | When: 2026-09-22",
+          "type": "world",
+          "when": "2026-09-22"
+        },
+        {
+          "text": "The team learned that checkout confirmation payload changes are dangerous to deploy during Friday evenings due to potential conflicts with the price-sync job.",
+          "type": "world",
+          "when": "2026-09-04"
+        },
+        {
+          "text": "The Butterflaw prediction system correctly predicted that the deployment of checkout-service v4.2.1 would cause an incident.",
+          "type": "observation",
+          "when": "2026-08-21"
+        },
+        {
+          "text": "Deployment of version v4.1.0 for checkout-service was completed successfully. | When: 2026-08-03 | Refactored checkout pricing module behind feature flag checkout-pricing-v2.",
+          "type": "world",
+          "when": "2026-08-03"
+        },
+        {
+          "text": "The deployment included a new checkout address autocomplete feature. | When: 2026-09-18T11:00:00",
+          "type": "world",
+          "when": "2026-09-18"
+        },
+        {
+          "text": "Deployment of v4.2.1 for checkout-service failed and caused incident INC-147. | When: 2026-08-21 | Deployment collided with the weekly price-sync job, resulting in stale prices being served for 18 minutes.",
+          "type": "world",
+          "when": "2026-08-21"
+        },
+        {
+          "text": "Deployment of version v4.4.0 for checkout-service was completed successfully. | When: 2026-09-18T11:00:00",
+          "type": "world",
+          "when": "2026-09-18"
+        }
+      ],
+      "outcome": {
+        "failed": false,
+        "root_cause": "nil"
+      }
+    }
+  }
+}
